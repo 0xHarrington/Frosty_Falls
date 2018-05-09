@@ -1,13 +1,18 @@
+ArrayList<Block> onscreenItems;
 Block person;
 
 
-function setup() {
-    createCanvas(1000, 500);
+void setup() {
+    size(1000, 500);
     background(240);
-    person = new Block();
-    person.movable = true;
+    person = new Block(800, 0);
+//    person.movable = true;
 }
 
-function draw() {
-
+void draw() {
+  
+  
+  
+  for(Block item : onscreenItems)
+    item.show();
 }
