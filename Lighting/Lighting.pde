@@ -13,6 +13,10 @@ void setup() {
   if(1/2==0)frame.setResizable(true); 
   lights = new ArrayList<Light>();
   light = new LightManager();
+  shape.addPoint(100, 150);
+  shape.addPoint(300, 150);
+  shape.addPoint(300, 180);
+  shape.addPoint(100, 180);
 }
 class LightManager {
   color c;
@@ -54,35 +58,72 @@ class LightManager {
     boundary.visible = false;
     solids.add(boundary);
 
-    for (int i=0;i<lightsa.size();i++) {
-      Light ligh = lightsa.get(i);
-    }
+    // populate segments
     for (Solid s:solids) {
       if (s.visible)s.display();
-      for (int i=0;i<s.x.size()-1;i++) {
-        pointsX.add(s.x.get(i));
-        pointsY.add(s.y.get(i));
-        segs.add(new Segment(s.x.get(i), s.y.get(i), s.x.get(i+1), s.y.get(i+1)));
+      for  (Vertex v: s.polygon) {
+        pointsX.add(v.point.x);
+        pointsY.add(v.point.y);
+        segs.add(new Segment(v.point.x, v.point.y, v.next.point.x, v.next.point.y));
       }
-      pointsX.add(s.x.get(s.x.size()-1));
-      pointsY.add(s.y.get(s.y.size()-1));
-      segs.add(new Segment(s.x.get(0), s.y.get(0), s.x.get(s.x.size()-1), s.y.get(s.x.size()-1)));
     }
-    for (int i=0;i<lightsa.size();i++) {
-      lightsa.get(i).cast();
-    }
+    for (Light light : lightsa) light.cast();
   }
   void setDebug(boolean tode) {
     debug = tode;
+  }
+}
+class Vertex {
+  PVector point;
+  Vertex next;
+  Vertex(float x, float y) {
+    this.point = new PVector(x,y);
+  }
+}
+class Polygon implements Iterable<Vertex> {
+  Vertex head, tail;
+  
+  public void addPoint(float x, float y) {
+    Vertex v = new Vertex(x,y);
+    if (this.head == null) {
+      this.head = v;
+      this.tail = v;
+    }
+    v.next = head;
+    tail.next = v;
+    tail = v;
+  }
+  public Iterator<Vertex> iterator() {
+    return new VertexIterator();
+  }
+  private class VertexIterator implements Iterator<Vertex> {
+    private Vertex current;
+    private boolean started;
+    public VertexIterator() {
+      this.current = Polygon.this.head;
+      started = false;
+    }
+    public boolean hasNext() {
+      return !(started  && current == Polygon.this.head);
+    }
+    public Vertex next() {
+      if (!this.hasNext()) throw new NoSuchElementException();
+      Vertex toReturn = current;
+      current = current.next;
+      started = true;
+      return toReturn;
+    }
   }
 }
 class Solid {
   boolean visible = true;
   ArrayList<Float> x = new ArrayList<Float>();
   ArrayList<Float> y = new ArrayList<Float>();
+  Polygon polygon = new Polygon();
   void addPoint(float xa, float ya) {
     x.add(xa);
     y.add(ya);
+    polygon.addPoint(xa,ya);
   }
   void display() {
     noStroke();
@@ -96,6 +137,40 @@ class Solid {
     endShape();
   }
 }
+
+class Movable extends Solid {
+  boolean visible = false;
+  PVector velDir;
+  int speed = 1;
+  void move() {
+    for (int i=0;i<x.size();i++) {
+      if (x.get(i) < 100) speed = 1;
+      if (x.get(i) > 500) speed = -1;
+    }
+    for (int i=0;i<x.size();i++) {
+      x.set(i,x.get(i) + speed);
+    }
+    for (Vertex v: this.polygon) {
+      v.point.x += speed;
+    }
+  }
+}
+
+//class Player extends Solid {
+// void move() {
+//   if(move) x += xspeed; // Increment x
+//    if(move)y += yspeed; // Increment y
+//     rot+=rotSpeed
+//    // Check horizontal edges
+//    if (x > width || x < 0) {
+//      xspeed *= - 1;
+//    }
+//    //Check vertical edges
+//    if (y > height || y < 0) {
+//      yspeed *= - 1;
+//    }
+// }
+//}
 
 class Light {
   float posX, posY, radius;

@@ -2,18 +2,19 @@ LightManager light;
 ArrayList<Light> lights;
 ArrayList<Ball> balls;
 boolean move = true;
+Movable shape = new Movable();
 
 void draw() {
 
   light.beginLight(color(50));
-  Solid shape = new Solid();
+  //Movable shape = new Movable();
   Solid shape3 = new Solid();
   Solid shape2 = new Solid();
  Solid shape4 = new Solid();
-    shape.addPoint(100, 150);
-  shape.addPoint(300, 150);
-  shape.addPoint(300, 180);
-  shape.addPoint(100, 180);
+    //shape.addPoint(100, 150);
+  //shape.addPoint(300, 150);
+  //shape.addPoint(300, 180);
+  //shape.addPoint(100, 180);
   
   shape3.addPoint(240, 60);
   shape3.addPoint(360, 40);
@@ -34,6 +35,7 @@ shape4.addPoint(510, 560);
   light.addObject(shape2);
   light.addObject(shape);
   light.addObject(shape4);
+  shape.move();
   for(int i=0;i<balls.size();i++){
     balls.get(i).move();
     balls.get(i).display();
@@ -48,14 +50,17 @@ text(frameRate,30,30);
 }
 void mousePressed(){
   balls.add(new Ball(mouseX,mouseY));
-  Light l = new Light(mouseX,mouseY,color(random(0,255),random(0,255),random(0,255)),random(300,1000),255);
-  //Light l = new Light(mouseX,mouseY,color(255,255,255),100,255);
+  //Light l = new Light(mouseX,mouseY,color(random(0,255),random(0,255),random(0,255)),random(300,1000),255);
+  Light l = new Light(mouseX,mouseY,color(255,255,255),100,255);
   //brightness range 0 - 255
 lights.add(l);
 light.addLight(l);
 }
 void keyPressed(){
   if(key==' ')move=!move;
+  else if (key == 'd') {
+    
+  }
 else light.removeLights();
 }
 class Ball {
