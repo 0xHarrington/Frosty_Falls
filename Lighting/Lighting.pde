@@ -7,18 +7,28 @@ ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
 PImage imgMap;
 Solid boundary;
-PVector gravity = new PVector(0, 0.025);
+PVector gravity = new PVector(0, 0.25);
 int maxV = 5;
 
 void setup() { 
   balls= new ArrayList<Ball>();
-  size(800,600,P3D);
+  //size(800,600,P3D);
+  fullScreen(P3D);
   //if(1/2==0)frame.setResizable(true); 
   lights = new ArrayList<Light>();
   lightManager = new LightManager();
   
   
   //Solid shape = new Oscillator(new PVector(1,1),200);
+  
+  Solid floor = new Solid();
+  float floorThicc = height / 20;
+  floor.addPoint(0,height - floorThicc);
+  floor.addPoint(width, height - floorThicc);
+  floor.addPoint(width,height);
+  floor.addPoint(0,height);
+  
+  
   Solid shape = new Solid();
   shape.addPoint(100, 150);
   shape.addPoint(300, 150);
@@ -47,6 +57,7 @@ void setup() {
   lightManager.addObject(shape2);
   lightManager.addObject(shape3);
   lightManager.addObject(shape4);
+  lightManager.addObject(floor);
 
   // add image boundary for intersections
   boundary = new Solid();
@@ -119,12 +130,13 @@ class Solid extends Polygon {
 
 class Player extends Solid {
   PVector velocity = new PVector(0,0);  
+  boolean standing = false;
   
   void move() {
     if (keyPressed) {
       switch(keyCode) {
         case UP:
-          velocity.add(new PVector(0, -1));
+          if (standing) velocity.add(new PVector(0, -10));
           break;
         case DOWN:
           break;
@@ -137,18 +149,9 @@ class Player extends Solid {
         default:
           velocity.add(new PVector(0, 0));
       }
-<<<<<<< Updated upstream
       for (Vertex v : polygon) v.add(velocity);
     }
-    for (Solid other : solids) {
-      if (other == boundary || other == this) continue;
-      PVector impulse = polygon.detectCollision(other.polygon);
-      if (impulse.magSq() <= EPS) continue;
-      System.out.println(impulse);
-      for (Vertex v : polygon) v.add(impulse);
-    }
-=======
-    }  
+    
     if (velocity.x >= maxV) velocity.x = maxV;
     if (velocity.x <= -maxV) velocity.x = -maxV;
     if (velocity.y >= maxV) velocity.y = maxV;
@@ -157,9 +160,16 @@ class Player extends Solid {
     
     // if on top of something, don't do this:
     velocity.add(gravity);
-    for (Vertex v : polygon)
-        v.add(velocity);
->>>>>>> Stashed changes
+    for (Vertex v : polygon) v.add(velocity);
+    standing = false;
+    for (Solid other : solids) {
+      if (other == boundary || other == this) continue;
+      PVector impulse = polygon.detectCollision(other.polygon);
+      if (impulse.magSq() <= EPS) continue;
+      for (Vertex v : polygon) v.add(impulse);
+      if (impulse.normalize().dot(new PVector(0,-1)) == 1)
+        standing = true;
+    }
   }
 }
 
