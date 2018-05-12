@@ -1,18 +1,12 @@
 LightManager lightManager;
 ArrayList<Light> lights;
 ArrayList<Ball> balls;
-boolean move = false;
-
-PVector gravity = new PVector(0, 0.25);
-int maxV = 4;
-float walkingSpeed = 3;
-float lightScale = 1.5;
+boolean move = true;
 
 void draw() {
   lightManager.beginLight(color(50));
   
   for (Solid solid : solids) solid.move();
-  
   for (int i = 0; i < balls.size(); i++) {
     balls.get(i).display();
     balls.get(i).move();
@@ -35,33 +29,14 @@ void mousePressed(){
 }
 
 void keyPressed(){
-  if (key == ' ' && player.standing) player.velocity.y = -10;
-  if (key == 'c') lightManager.removeLights();
-  switch(keyCode) {
-      case LEFT:
-        player.velocity.x = -walkingSpeed;
-        break;
-      case RIGHT:
-        player.velocity.x = walkingSpeed;
-        break;
-      default:
-        ;
-    }
+  if (key==' ') move = !move;
+  else if (key == 'd') {
+    
+  }
+  else lightManager.removeLights();
 }
-void keyReleased() {
-  switch(keyCode) {
-      case LEFT:
-        if (player.velocity.x < 0) player.velocity.x = 0;
-        break;
-      case RIGHT:
-        if (player.velocity.x > 0) player.velocity.x = 0;
-        break;
-      default:
-        ;
-    }
-}
-  
-  
+
+
 class Ball {
   float rotSpeed = random(-5,5), rot=random(0,360);
   float angdif = random(200,320);

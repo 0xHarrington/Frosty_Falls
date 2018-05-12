@@ -7,8 +7,9 @@ ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
 PImage imgMap;
 Solid boundary;
-int thicc = 200;
-Player player;
+PVector gravity = new PVector(0, 0.25);
+int maxV = 3;
+int thicc = 20;
 
 void setup() { 
   balls= new ArrayList<Ball>();
@@ -45,14 +46,14 @@ void setup() {
   shape.addPoint(300, 150);
   shape.addPoint(300, 180);
   shape.addPoint(100, 180);
-  player = new Player();
+  Solid shape3 = new Player();
   Solid shape2 = new Solid();
   Solid shape4 = new Solid();
   
-  player.addPoint(10, height - height/10);
-  player.addPoint(10, height - height/10 + 20);
-  player.addPoint(30, height - height/10 + 20);
-  player.addPoint(30, height - height/10);
+  shape3.addPoint(10, height - height/10);
+  shape3.addPoint(10, height - height/10 + 20);
+  shape3.addPoint(30, height - height/10 + 20);
+  shape3.addPoint(30, height - height/10);
 
   shape2.addPoint(440, 340);
   shape2.addPoint(420, 280);
@@ -64,14 +65,13 @@ void setup() {
   shape4.addPoint(560, 540);
   shape4.addPoint(560, 560);
   shape4.addPoint(510, 560);
-  
-  solids.add(shape);
-  solids.add(shape2);
-  solids.add(player);
-  solids.add(shape4);
-  solids.add(floor);
-  solids.add(lwall);
-  solids.add(rwall);
+  lightManager.addObject(shape);
+  lightManager.addObject(shape2);
+  lightManager.addObject(shape3);
+  lightManager.addObject(shape4);
+  lightManager.addObject(floor);
+  lightManager.addObject(lwall);
+  lightManager.addObject(rwall);
 
   // add image boundary for intersections
   boundary = new Solid();
@@ -96,8 +96,10 @@ class LightManager {
   }
   void addLight(Light li) { lightsa.add(li);}
   void removeLights() { lightsa.clear();}
+  void addObject(Solid so) { solids.add(so);}
   void beginLight(color c) {
     this.c = c;
+    //solids.clear();
     background(c);
   }
 
@@ -121,7 +123,7 @@ class LightManager {
 }
 
 
-class Solid {
+class Solid extends Polygon {
   boolean visible = true;
   Polygon polygon = new Polygon();
   boolean lit;
@@ -143,42 +145,42 @@ class Solid {
 class Player extends Solid {
   PVector velocity = new PVector(0,0);  
   boolean standing = false;
- 
+  
   void move() {
-    if (this.lit && this.velocity.x != 0) lightScale += 0.25;
-    else if (this.standing) lightScale = lightScale >= 2 + EPS ? lightScale - .5 : 1.5;
+    if (keyPressed) {
+      switch(keyCode) {
+        case UP:
+          if (standing) velocity.add(new PVector(0, -10));
+          break;
+        case LEFT:
+          velocity.add(new PVector(-1, 0));
+          break;
+        case RIGHT:
+          velocity.add(new PVector(1, 0));
+          break;
+        default:
+          velocity.add(new PVector(0, 0));
+      }
+      for (Vertex v : polygon) v.add(velocity);
+    }
     
-    if (velocity.x < 0) velocity.x = - walkingSpeed * lightScale;
-    else if (velocity.x > 0) velocity.x = walkingSpeed * lightScale;
+    if (velocity.x >= maxV) velocity.x = maxV;
+    if (velocity.x <= -maxV) velocity.x = -maxV;
+    if (velocity.y >= maxV) velocity.y = maxV;
+    if (velocity.y <= -maxV) velocity.y = -maxV;
+
+    
+    // if on top of something, don't do this:
     velocity.add(gravity);
-    for (Vertex v : player.polygon) v.add(velocity);
-    
-    // Collision Code
-    player.standing = false;
+    for (Vertex v : polygon) v.add(velocity);
+    standing = false;
     for (Solid other : solids) {
-      if (other == boundary || other == player) continue;
-      PVector impulse = player.polygon.detectCollision(other.polygon);
+      if (other == boundary || other == this) continue;
+      PVector impulse = polygon.detectCollision(other.polygon);
       if (impulse.magSq() <= EPS) continue;
-      for (Vertex v : player.polygon) v.add(impulse);
+      for (Vertex v : polygon) v.add(impulse);
       if (impulse.normalize().dot(new PVector(0,-1)) == 1)
-        player.standing = true;
-    }
-    if (player.standing) player.velocity.y = 0.0;
-    
-    // no clipping for you
-    float minX = 0, maxX = width;
-    float minY = 0, maxY = height - height / 40;
-    for (Vertex v : this.polygon) {
-      minX = (v.x < minX) ? v.x : minX;
-      maxX = (v.x > maxX) ? v.x : maxX;
-      minY = (v.y < minY) ? v.y : minY;
-      maxY = (v.y > maxY) ? v.y : maxY;
-    }
-    for (Vertex v : this.polygon) {
-      if (minX < 0) v.x -= minX;
-      else if (maxX > width) v.x -= maxX - width;
-      if (minY < 0) v.y -= minY;
-      else if (maxY > height - height / 40) v.y -= maxY - height + height/40;
+        standing = true;
     }
   }
 }
