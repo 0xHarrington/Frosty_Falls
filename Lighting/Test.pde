@@ -30,10 +30,9 @@ void mousePressed(){
 
 void keyPressed(){
   if (key==' ') move = !move;
-  else if (key == 'd') {
-    
+  else if (key == 'c') {
+    lightManager.removeLights();
   }
-else lightManager.removeLights();
 }
 
 
