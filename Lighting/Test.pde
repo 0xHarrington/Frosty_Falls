@@ -35,6 +35,7 @@ void mousePressed(){
 }
 
 void keyPressed(){
+  if (key == 'm') move = !move;
   if (key == ' ' && player.standing) player.velocity.y = -10;
   if (key == 'c') lightManager.removeLights();
   switch(keyCode) {
@@ -87,7 +88,7 @@ class Ball {
       x += xspeed;
     }
     //Check vertical edges
-    if (y > height || y < 0) {
+    if (y > height - floorthicc || y < 0) {
       yspeed *= - 1;
       y  += yspeed;
     }

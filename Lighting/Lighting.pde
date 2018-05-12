@@ -7,7 +7,7 @@ ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
 PImage imgMap;
 Solid boundary;
-int thicc = 200;
+int floorthicc = 20;
 Player player;
 
 void setup() { 
@@ -19,26 +19,24 @@ void setup() {
   lightManager = new LightManager();
   
   
-  //Solid shape = new Oscillator(new PVector(1,1),200);
-  
   Solid floor = new Solid();
-  float thicc = height / 20;
-  floor.addPoint(0, height - thicc/2);
-  floor.addPoint(width, height - thicc/2);
-  floor.addPoint(width, height + thicc/2);
-  floor.addPoint(0, height + thicc/2);
+  floor.addPoint(0, height - floorthicc);
+  floor.addPoint(width, height - floorthicc);
+  floor.addPoint(width, height + floorthicc);
+  floor.addPoint(0, height + floorthicc);
   
+  float wallthicc = height / 2;
   Solid lwall = new Solid();
-  lwall.addPoint(-thicc, 0);
+  lwall.addPoint(-wallthicc, 0);
   lwall.addPoint(0, 0);
   lwall.addPoint(0, height);
-  lwall.addPoint(-thicc, height);
+  lwall.addPoint(-wallthicc, height);
   
   Solid rwall = new Solid();
-  rwall.addPoint(width,0);
-  rwall.addPoint(width + thicc,0);
-  rwall.addPoint(width + thicc,height);
-  rwall.addPoint(width,height);
+  rwall.addPoint(width, 0);
+  rwall.addPoint(width + wallthicc, 0);
+  rwall.addPoint(width + wallthicc, height);
+  rwall.addPoint(width, height);
   
   Solid shape = new Solid();
   shape.addPoint(100, 150);
@@ -58,12 +56,10 @@ void setup() {
   shape2.addPoint(420, 280);
   shape2.addPoint(370, 340);
   
-  shape4.addPoint(510, 520);
-  shape4.addPoint(540, 520);
-  shape4.addPoint(540, 540);
-  shape4.addPoint(560, 540);
-  shape4.addPoint(560, 560);
-  shape4.addPoint(510, 560);
+  shape4.addPoint(610, 600);
+  shape4.addPoint(790, 600);
+  shape4.addPoint(790, 620);
+  shape4.addPoint(610, 620);
   
   solids.add(shape);
   solids.add(shape2);
