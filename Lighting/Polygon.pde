@@ -28,7 +28,7 @@ class Polygon implements Iterable<Vertex> {
       started = false;
     }
     public boolean hasNext() {
-      return !(started  && current == Polygon.this.head);
+      return !(current != null && started  && current == Polygon.this.head);
     }
     public Vertex next() {
       if (!this.hasNext()) throw new NoSuchElementException();

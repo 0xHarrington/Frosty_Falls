@@ -4,20 +4,53 @@ ArrayList<Light> lightsa;
 boolean debug = false;
 PGraphics buff;
 ArrayList<Segment> segs;
-ArrayList<Float> pointsX;
-ArrayList<Float> pointsY;
 ArrayList<PVector> allPoints;
 PImage imgMap;
 void setup() { 
   balls= new ArrayList<Ball>();
   size(800,600,P3D);
-  if(1/2==0)frame.setResizable(true); 
+  //if(1/2==0)frame.setResizable(true); 
   lights = new ArrayList<Light>();
   light = new LightManager();
+  
+  
+  Solid shape = new Oscillator(new PVector(1,1),100);
   shape.addPoint(100, 150);
   shape.addPoint(300, 150);
   shape.addPoint(300, 180);
   shape.addPoint(100, 180);
+  Solid shape3 = new Solid();
+  Solid shape2 = new Solid();
+  Solid shape4 = new Solid();
+  
+  shape3.addPoint(240, 60);
+  shape3.addPoint(360, 40);
+  shape3.addPoint(370, 70);
+  shape3.addPoint(170, 70);
+
+  shape2.addPoint(440, 340);
+  shape2.addPoint(420, 280);
+  shape2.addPoint(370, 340);
+  
+  shape4.addPoint(510, 520);
+  shape4.addPoint(540, 520);
+  shape4.addPoint(540, 540);
+  shape4.addPoint(560, 540);
+  shape4.addPoint(560, 560);
+  shape4.addPoint(510, 560);
+  light.addObject(shape);
+  light.addObject(shape2);
+  light.addObject(shape3);
+  light.addObject(shape4);
+
+  // add image boundary for intersections
+  Solid boundary = new Solid();
+  boundary.visible = false;
+  boundary.addPoint(0, 0);
+  boundary.addPoint(width, 0);
+  boundary.addPoint(width, height);
+  boundary.addPoint(0, height);
+  solids.add(boundary);
 }
 class LightManager {
   color c;
@@ -25,55 +58,36 @@ class LightManager {
   LightManager() {
     imgMap = loadImage("http://i.imgur.com/DADrPTA.png");
     segs = new ArrayList<Segment>();
-    pointsX = new ArrayList<Float>();
-    pointsY = new ArrayList<Float>();
     allPoints = new ArrayList<PVector>();
     lightsa = new ArrayList<Light>();
 
     solids = new ArrayList<Solid>();
   }
-  void addLight(Light li) {
-    lightsa.add(li);
-  }
-  void removeLights() {
-    lightsa.clear();
-  }
-  void addObject(Solid so) {
-    solids.add(so);
-  }
+  void addLight(Light li) { lightsa.add(li);}
+  void removeLights() { lightsa.clear();}
+  void addObject(Solid so) { solids.add(so);}
   void beginLight(color c) {
     this.c = c;
-    solids.clear();
+    //solids.clear();
     background(c);
   }
 
   void castLight() {
     blendMode(ADD);
-    pointsX.clear();
-    pointsY.clear();
     allPoints.clear();
     segs.clear();
-    boundary = new Solid();
-    boundary.addPoint(0, 0);
-    boundary.addPoint(-width, height*2);
-    boundary.addPoint(width*2, height*2);
-    boundary.addPoint(width*2, -height);
-    boundary.visible = false;
-    solids.add(boundary);
+    
 
     // populate segments
     for (Solid s:solids) {
-      if (s.visible)s.display();
+      if (s.visible) s.display();
       for  (Vertex v: s.polygon) {
-        pointsX.add(v.x);
-        pointsY.add(v.y);
-        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y));
+        allPoints.add(v);
+        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y, s));
       }
+      s.lit = false;
     }
     for (Light light : lightsa) light.cast();
-  }
-  void setDebug(boolean tode) {
-    debug = tode;
   }
 }
 
@@ -81,199 +95,88 @@ class LightManager {
 class Solid {
   boolean visible = true;
   Polygon polygon = new Polygon();
+  boolean lit;
   
   void addPoint(float xa, float ya) {
     polygon.addPoint(xa,ya);
   }
+  void addPoint(PVector p) {
+    polygon.addPoint(p.x,p.y);
+  }
   
   void display() {
     noStroke();
-    fill(150, 230, 100);
+    if (lit) fill(255,255,255);
+    else fill(150, 230, 100);
     beginShape();
     for (Vertex v: polygon) vertex(v.x,v.y);
     endShape();
   }
-}
-
-class Movable extends Solid {
-  boolean visible = false;
-  PVector velDir;
-  int speed = 1;
   void move() {
-    for (Vertex v: polygon) {
-      if (v.x < 100) speed = 1;
-      if (v.x > 500) speed = -1;
+    ;
+  }
+}
+
+class Moving extends Solid {
+  PVector velocity;
+}
+
+class Oscillator extends Solid {
+  PVector direction;
+  int stepsFromStart, maxSteps, stepDir;
+  Oscillator(PVector direction, int steps) {
+    maxSteps = steps;
+    this.direction = PVector.mult(direction, -1);
+    stepsFromStart = 0;
+    stepDir = -1;
+  }
+  void addPoint(PVector p) {
+    polygon.addPoint(p.x, p.y);
+    
+  }
+  void move() {
+    if (stepsFromStart == 0 || stepsFromStart == maxSteps) {
+      this.direction.mult(-1);
+      stepDir *= -1;
     }
-    for (Vertex v: this.polygon) {
-      v.x += speed;
-    }
+    for (Vertex v: this.polygon)
+      v.add(direction);
+    stepsFromStart += stepDir;
   }
 }
 
-class Light {
-  float posX, posY, radius;
-  PImage lig;
-  color c;
-  float brightness = 100;
-  float ang1 = 360;
-  float ang2 = 360;
-  boolean dead = false;
-  void kill() {
-    dead = true;
+Intersection getIntersection(Ray ray, Segment segment) {
+  // distance along segment
+  double T2 = (ray.dir.x * (segment.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - segment.pos.x)) /
+              (segment.dir.x * ray.dir.y - segment.dir.y * ray.dir.x);
+  // distance along ray
+  double T1 = (segment.pos.x + segment.dir.x * T2 - ray.pos.x) / ray.dir.x;
+
+  if (T1 < 0 || T2 < 0 || T2 > 1) return null;
+
+  return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
+}
+class Intersection extends PVector {
+  float L, ang;
+  Segment segment;
+  Intersection(double x, double y, double L, Segment seg) {
+    super((float) x, (float) y);
+    this.segment = seg;
+    this.L = (float) L;
   }
-  Light(float posX, float posY, color c, float radius, float brightness) {
-    this.brightness = brightness;
-    this.posX=posX;
-    this.posY=posY;
-    this.c=c;
-
-    this.radius=radius;
-    lig = imgMap.get();
-    lig.resize(0, (int)radius);
-  }
-  void setRadius(float radius) {
-    this.radius=radius;
-    lig = imgMap.get();
-    lig.resize((int)radius, (int)radius);
-  }
-  void setAngle(float ang1, float ang2) {
-    this.ang1 = ang1;
-    this.ang2 = ang2;
-  }
-  void move(float posX, float posY) {
-    this.posX=posX;
-    this.posY=posY;
-  }
-
-  void update(float posX, float posY, color c, float radius, float brightness) {
-    this.brightness=brightness;
-    lig = imgMap.get();
-    lig.resize(0, (int)radius);
-    this.posX=posX;
-    this.posY=posY;
-    this.c=c;
-    this.radius=radius;
-  }
-  void cast() {
-
-    if (!dead) {
-      ArrayList <Inters>intersects = new ArrayList<Inters>();
-
-
-      ArrayList<Double> uniqueAngles = new ArrayList<Double>();
-      Solid block = new Solid();
-      block.visible = false;
-      double angle1 = radians(ang1);
-      double angle2 = radians(ang2);
-      float dx0 = (float)(Math.cos(angle1)*1000);
-      float dy0 = (float)(Math.sin(angle1)*1000);
-      float dx1 = (float)(Math.cos(angle2)*1000);
-      float dy1 = (float)(Math.sin(angle2)*1000);
-      float dx2 = (float)(Math.cos(radians((ang1+ang2)/2))*2);
-      float dy2 = (float)(Math.sin(radians((ang1+ang2)/2))*2);
-      block.addPoint(posX+dx2, posY+dy2);
-      block.addPoint(posX+ dx0, posY + dy0);
-      block.addPoint(posX+ dx2*2, posY + dy2*2);
-      block.addPoint(posX+ dx1, posY + dy1);
-      for (Vertex v : block.polygon) {
-        pointsX.add(v.x);
-        pointsY.add(v.y);
-        segs.add(new Segment(v.x,v.y,v.next.x,v.next.y));
-      }
-      for (int j=0;j<pointsX.size();j++) {
-
-        double angle = Math.atan2(pointsY.get(j)-posY, pointsX.get(j)-posX);
-        //uniquePoint.angle = angle;
-        uniqueAngles.add(angle-0.00001);
-        uniqueAngles.add(angle);
-        uniqueAngles.add(angle+0.00001);
-      }
-      // RAYS IN ALL DIRECTIONS
-      for (int k=0;k<uniqueAngles.size();k++) {
-        double angle = uniqueAngles.get(k);
-        // if(angle>ang2)angle = ang2;
-        //if(angle<ang1)angle = ang1;
-        // Calculate dx & dy from angle
-        double dx = Math.cos(angle);
-        double dy = Math.sin(angle);
-
-
-
-        // Find CLOSEST intersection
-        Inters closestIntersect = new Inters(posX+dx*9999, posY+dy*9999, 99999);
-        for (Segment theseg: segs) {
-          Inters intersect = getIntersection(posX, posY, posX+dx, posY+dy, theseg.sx, theseg.sy, theseg.sx1, theseg.sy1);
-          if (intersect==null) {
-          }
-          else {
-            if (intersect.L<closestIntersect.L) {
-              closestIntersect=intersect;
-            }
-          }
-        }
-        // Add to list of intersects
-        closestIntersect.ang = (double)angle;
-        intersects.add(closestIntersect);
-      }
-      Collections.sort(intersects, new Comparator<Inters>() {
-        public int compare(Inters o1, Inters o2) {
-          return Double.compare(o2.ang, o1.ang);
-        }
-      }
-      );
-
-      tint(red(c), green(c), blue(c), brightness);
-
-      pushMatrix();
-      beginShape();
-      texture(lig);
-      for (Inters inte: intersects) {
-        vertex((float)inte.x1, (float)inte.y1, (float)inte.x1+(radius/2)-posX, (float)inte.y1+(radius/2)-posY);
-      }
-
-      endShape();
-      popMatrix();
-      if (debug) {
-        for (Inters inte: intersects) {
-          stroke(255);
-          line(posX, posY, (float)inte.x1, (float)inte.y1);
-        }
-      }
-      for(int i=0;i<4;i++){
-      pointsX.remove(pointsX.size()-1);
-       pointsY.remove(pointsY.size()-1);
-       segs.remove(segs.size()-1);
-      }
-    }
+  Intersection(PVector p, float L) {
+    super(p.x, p.y);
+    this.L = L;
   }
 }
-Inters getIntersection(double r_px, double r_py, double r_px1, double r_py1, double s_px, double s_py, double s_px1, double s_py1) {
-  double r_dx = r_px1-r_px;
-  double r_dy = r_py1-r_py;
-  double s_dx = s_px1-s_px;
-  double s_dy = s_py1-s_py; 
 
-  double T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
-  double T1 = (s_px+s_dx*T2-r_px)/r_dx;
-
-  if (T1<0||T2<0 || T2>1) return null;
-
-  return new Inters(r_px+r_dx*T1, r_py+r_dy*T1, T1);
-}
-class Inters {
-  double x1, y1, L, ang;
-  Inters(double a, double b, double c) {
-    x1=a;
-    y1=b;
-    L=c;
-  }
-}
+// Represent segment as point and vector (magnitude matters)
 class Segment {
-  double sx, sy, sx1, sy1;
-  Segment(double sxs, double sys, double sx1s, double sy1s) {
-    sx = sxs;
-    sy = sys;
-    sx1 = sx1s;
-    sy1 = sy1s;
+  PVector pos, dir;
+  Solid parent;
+  Segment(double sxs, double sys, double sx1s, double sy1s, Solid s) {
+    pos = new PVector((float)sxs, (float)sys);
+    dir = new PVector((float)sx1s, (float)sy1s).sub(pos);
+    parent = s;
   }
 }

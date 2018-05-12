@@ -2,51 +2,21 @@ LightManager light;
 ArrayList<Light> lights;
 ArrayList<Ball> balls;
 boolean move = true;
-Movable shape = new Movable();
+
 
 void draw() {
-
   light.beginLight(color(50));
   //Movable shape = new Movable();
-  Solid shape3 = new Solid();
-  Solid shape2 = new Solid();
- Solid shape4 = new Solid();
-    //shape.addPoint(100, 150);
-  //shape.addPoint(300, 150);
-  //shape.addPoint(300, 180);
-  //shape.addPoint(100, 180);
   
-  shape3.addPoint(240, 60);
-  shape3.addPoint(360, 40);
-  shape3.addPoint(370, 70);
-  shape3.addPoint(170, 70);
-
-  shape2.addPoint(440, 340);
-  shape2.addPoint(420, 280);
-  shape2.addPoint(370, 340);
-  
-shape4.addPoint(510, 520);
-shape4.addPoint(540, 520);
-shape4.addPoint(540, 540);
-shape4.addPoint(560, 540);
-shape4.addPoint(560, 560);
-shape4.addPoint(510, 560);
-  light.addObject(shape3);
-  light.addObject(shape2);
-  light.addObject(shape);
-  light.addObject(shape4);
-  shape.move();
-  for(int i=0;i<balls.size();i++){
-    balls.get(i).move();
+  for (Solid solid : solids) solid.move();
+  for (int i = 0; i < balls.size(); i++) {
     balls.get(i).display();
+    balls.get(i).move();
     lights.get(i).move(balls.get(i).x,balls.get(i).y);
     //lights.get(i).setAngle(balls.get(i).rot,balls.get(i).rot+balls.get(i).angdif);
   }
-  
-   light.castLight();
-
- 
-text(frameRate,30,30);
+  light.castLight();
+  text(frameRate,30,30);
 }
 void mousePressed(){
   balls.add(new Ball(mouseX,mouseY));
@@ -76,8 +46,7 @@ class Ball {
     y = y1;
     xspeed = random( - 5,5);
     yspeed = random( - 5,5);
-   
-  }
+   }
   
   void move() {
    if(move) x += xspeed; // Increment x
@@ -86,10 +55,12 @@ class Ball {
     // Check horizontal edges
     if (x > width || x < 0) {
       xspeed *= - 1;
+      x += xspeed;
     }
     //Check vertical edges
     if (y > height || y < 0) {
       yspeed *= - 1;
+      y  += yspeed;
     }
   }
   
