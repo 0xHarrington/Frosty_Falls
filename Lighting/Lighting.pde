@@ -7,12 +7,15 @@ ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
 PImage imgMap;
 Solid boundary;
+PVector gravity = new PVector(0, 0.025);
+int maxV = 5;
+
 void setup() { 
   balls= new ArrayList<Ball>();
   size(800,600,P3D);
   //if(1/2==0)frame.setResizable(true); 
   lights = new ArrayList<Light>();
-  light = new LightManager();
+  lightManager = new LightManager();
   
   
   //Solid shape = new Oscillator(new PVector(1,1),200);
@@ -40,10 +43,10 @@ void setup() {
   shape4.addPoint(560, 540);
   shape4.addPoint(560, 560);
   shape4.addPoint(510, 560);
-  light.addObject(shape);
-  light.addObject(shape2);
-  light.addObject(shape3);
-  light.addObject(shape4);
+  lightManager.addObject(shape);
+  lightManager.addObject(shape2);
+  lightManager.addObject(shape3);
+  lightManager.addObject(shape4);
 
   // add image boundary for intersections
   boundary = new Solid();
@@ -54,6 +57,7 @@ void setup() {
   boundary.addPoint(0, height);
   solids.add(boundary);
 }
+
 class LightManager {
   color c;
   Solid boundary;
@@ -94,7 +98,7 @@ class LightManager {
 }
 
 
-class Solid {
+class Solid extends Polygon {
   boolean visible = true;
   Polygon polygon = new Polygon();
   boolean lit;
@@ -114,25 +118,26 @@ class Solid {
 }
 
 class Player extends Solid {
+  PVector velocity = new PVector(0,0);  
+  
   void move() {
     if (keyPressed) {
-      PVector velocity;
       switch(keyCode) {
         case UP:
-          velocity = new PVector(0, -1);
+          velocity.add(new PVector(0, -1));
           break;
         case DOWN:
-          velocity = new PVector(0, 1);
           break;
         case LEFT:
-          velocity = new PVector(-1, 0);
+          velocity.add(new PVector(-1, 0));
           break;
         case RIGHT:
-          velocity = new PVector(1, 0);
+          velocity.add(new PVector(1, 0));
           break;
         default:
-          velocity = new PVector(0, 0);
+          velocity.add(new PVector(0, 0));
       }
+<<<<<<< Updated upstream
       for (Vertex v : polygon) v.add(velocity);
     }
     for (Solid other : solids) {
@@ -142,12 +147,26 @@ class Player extends Solid {
       System.out.println(impulse);
       for (Vertex v : polygon) v.add(impulse);
     }
+=======
+    }  
+    if (velocity.x >= maxV) velocity.x = maxV;
+    if (velocity.x <= -maxV) velocity.x = -maxV;
+    if (velocity.y >= maxV) velocity.y = maxV;
+    if (velocity.y <= -maxV) velocity.y = -maxV;
+
+    
+    // if on top of something, don't do this:
+    velocity.add(gravity);
+    for (Vertex v : polygon)
+        v.add(velocity);
+>>>>>>> Stashed changes
   }
 }
 
 class Oscillator extends Solid {
   PVector direction;
   int stepsFromStart, maxSteps, stepDir;
+  
   Oscillator(PVector direction, int steps) {
     maxSteps = steps;
     this.direction = PVector.mult(direction, -1);
@@ -165,31 +184,6 @@ class Oscillator extends Solid {
     }
     for (Vertex v: this.polygon) v.add(direction);
     stepsFromStart += stepDir;
-  }
-}
-
-Intersection getIntersection(Ray ray, Segment segment) {
-  // distance along segment
-  double T2 = (ray.dir.x * (segment.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - segment.pos.x)) /
-              (segment.dir.x * ray.dir.y - segment.dir.y * ray.dir.x);
-  // distance along ray
-  double T1 = (segment.pos.x + segment.dir.x * T2 - ray.pos.x) / ray.dir.x;
-
-  if (T1 < 0 || T2 < 0 || T2 > 1) return null;
-
-  return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
-}
-class Intersection extends PVector {
-  float L, ang;
-  Segment segment;
-  Intersection(double x, double y, double L, Segment seg) {
-    super((float) x, (float) y);
-    this.segment = seg;
-    this.L = (float) L;
-  }
-  Intersection(PVector p, float L) {
-    super(p.x, p.y);
-    this.L = L;
   }
 }
 

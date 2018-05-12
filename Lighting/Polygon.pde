@@ -4,6 +4,19 @@ class Vertex extends PVector{
     super(x,y);
   }
 }
+
+Intersection getIntersection(Ray ray, Segment segment) {
+  // distance along segment
+  double T2 = (ray.dir.x * (segment.pos.y - ray.pos.y) + ray.dir.y * (ray.pos.x - segment.pos.x)) /
+              (segment.dir.x * ray.dir.y - segment.dir.y * ray.dir.x);
+  // distance along ray
+  double T1 = (segment.pos.x + segment.dir.x * T2 - ray.pos.x) / ray.dir.x;
+
+  if (T1 < 0 || T2 < 0 || T2 > 1) return null;
+
+  return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
+}
+
 class Polygon implements Iterable<Vertex> {
   Vertex head, tail;
   

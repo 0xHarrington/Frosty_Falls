@@ -1,14 +1,26 @@
 final float INFINITY = 999999;
 final float EPS = .00001;
 
-
-
 // Represent ray as point and direction
 class Ray {
   PVector pos, dir;
   Ray(PVector pos, PVector dir) {
     this.pos = pos;
     this.dir = dir;
+  }
+}
+
+class Intersection extends PVector {
+  float L, ang;
+  Segment segment;
+  Intersection(double x, double y, double L, Segment seg) {
+    super((float) x, (float) y);
+    this.segment = seg;
+    this.L = (float) L;
+  }
+  Intersection(PVector p, float L) {
+    super(p.x, p.y);
+    this.L = L;
   }
 }
 
@@ -70,7 +82,7 @@ class Light {
         PVector light2point = PVector.sub(point, pos);
         float angle = light2point.heading();
         uniqueAngles.add(angle - EPS);
-        uniqueAngles.add(angle);
+        uniqueAngles.add(angle); 
         uniqueAngles.add(angle + EPS);
       }
       
