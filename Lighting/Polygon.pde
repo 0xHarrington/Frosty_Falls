@@ -46,7 +46,7 @@ class Polygon implements Iterable<Vertex> {
     PVector toGo = new PVector(0,0);
     for (Vertex v : together) {
       PVector edge = PVector.sub(v.next, v);
-      PVector normal = new PVector(edge.y,-edge.x);
+      PVector normal = new PVector(edge.y,-edge.x).normalize();
       float myMin = INFINITY, myMax = -INFINITY, theirMin = INFINITY, theirMax = -INFINITY;
       for (Vertex u : this) {
         float t = normal.dot(u);
@@ -61,13 +61,19 @@ class Polygon implements Iterable<Vertex> {
       if (myMax < theirMin || theirMax < myMin)
         return new PVector(0,0);
       else {
-        if (myMax - theirMin > 0 && myMax - theirMin < dt) {
+        float mag = normal.mag();
+        myMin /= mag;
+        myMax /= mag;
+        theirMin /= mag;
+        theirMax /= mag;
+        normal.div(mag);
+        if (myMax - theirMin > -EPS && myMax - theirMin < dt) {
           dt = myMax - theirMin;
-          toGo = PVector.mult(normal, -1).normalize();
+          toGo = PVector.mult(normal, -1);
         }
-        if (theirMax - myMin > 0 && theirMax - myMin < dt) {
+        if (theirMax - myMin > -EPS && theirMax - myMin < dt) {
           dt = theirMax - myMin;
-          toGo = normal.copy().normalize();
+          toGo = normal.copy();
         }
       }
     }

@@ -15,8 +15,8 @@ void setup() {
   light = new LightManager();
   
   
-  Solid shape = new Oscillator(new PVector(1,1),200);
-  //Solid shape = new Player();
+  //Solid shape = new Oscillator(new PVector(1,1),200);
+  Solid shape = new Solid();
   shape.addPoint(100, 150);
   shape.addPoint(300, 150);
   shape.addPoint(300, 180);
@@ -106,12 +106,6 @@ class Solid {
     noStroke();
     if (lit) fill(255,255,255);
     else fill(150, 230, 100);
-    for (Solid other : solids) {
-      if (other != boundary && other != this && this.polygon.detectCollision(other.polygon).magSq() > 0) {
-        fill(0,0,255);
-        break;
-      }
-    }
     beginShape();
     for (Vertex v: polygon) vertex(v.x,v.y);
     endShape();
