@@ -6,6 +6,7 @@ PGraphics buff;
 ArrayList<Segment> segs;
 ArrayList<Float> pointsX;
 ArrayList<Float> pointsY;
+ArrayList<PVector> allPoints;
 PImage imgMap;
 void setup() { 
   balls= new ArrayList<Ball>();
@@ -26,6 +27,7 @@ class LightManager {
     segs = new ArrayList<Segment>();
     pointsX = new ArrayList<Float>();
     pointsY = new ArrayList<Float>();
+    allPoints = new ArrayList<PVector>();
     lightsa = new ArrayList<Light>();
 
     solids = new ArrayList<Solid>();
@@ -49,6 +51,7 @@ class LightManager {
     blendMode(ADD);
     pointsX.clear();
     pointsY.clear();
+    allPoints.clear();
     segs.clear();
     boundary = new Solid();
     boundary.addPoint(0, 0);
@@ -62,9 +65,9 @@ class LightManager {
     for (Solid s:solids) {
       if (s.visible)s.display();
       for  (Vertex v: s.polygon) {
-        pointsX.add(v.point.x);
-        pointsY.add(v.point.y);
-        segs.add(new Segment(v.point.x, v.point.y, v.next.point.x, v.next.point.y));
+        pointsX.add(v.x);
+        pointsY.add(v.y);
+        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y));
       }
     }
     for (Light light : lightsa) light.cast();
@@ -73,67 +76,21 @@ class LightManager {
     debug = tode;
   }
 }
-class Vertex {
-  PVector point;
-  Vertex next;
-  Vertex(float x, float y) {
-    this.point = new PVector(x,y);
-  }
-}
-class Polygon implements Iterable<Vertex> {
-  Vertex head, tail;
-  
-  public void addPoint(float x, float y) {
-    Vertex v = new Vertex(x,y);
-    if (this.head == null) {
-      this.head = v;
-      this.tail = v;
-    }
-    v.next = head;
-    tail.next = v;
-    tail = v;
-  }
-  public Iterator<Vertex> iterator() {
-    return new VertexIterator();
-  }
-  private class VertexIterator implements Iterator<Vertex> {
-    private Vertex current;
-    private boolean started;
-    public VertexIterator() {
-      this.current = Polygon.this.head;
-      started = false;
-    }
-    public boolean hasNext() {
-      return !(started  && current == Polygon.this.head);
-    }
-    public Vertex next() {
-      if (!this.hasNext()) throw new NoSuchElementException();
-      Vertex toReturn = current;
-      current = current.next;
-      started = true;
-      return toReturn;
-    }
-  }
-}
+
+
 class Solid {
   boolean visible = true;
-  ArrayList<Float> x = new ArrayList<Float>();
-  ArrayList<Float> y = new ArrayList<Float>();
   Polygon polygon = new Polygon();
+  
   void addPoint(float xa, float ya) {
-    x.add(xa);
-    y.add(ya);
     polygon.addPoint(xa,ya);
   }
+  
   void display() {
     noStroke();
     fill(150, 230, 100);
     beginShape();
-
-
-    for (int i=0;i<x.size();i++) {
-      vertex(x.get(i), y.get(i));
-    }
+    for (Vertex v: polygon) vertex(v.x,v.y);
     endShape();
   }
 }
@@ -143,34 +100,15 @@ class Movable extends Solid {
   PVector velDir;
   int speed = 1;
   void move() {
-    for (int i=0;i<x.size();i++) {
-      if (x.get(i) < 100) speed = 1;
-      if (x.get(i) > 500) speed = -1;
-    }
-    for (int i=0;i<x.size();i++) {
-      x.set(i,x.get(i) + speed);
+    for (Vertex v: polygon) {
+      if (v.x < 100) speed = 1;
+      if (v.x > 500) speed = -1;
     }
     for (Vertex v: this.polygon) {
-      v.point.x += speed;
+      v.x += speed;
     }
   }
 }
-
-//class Player extends Solid {
-// void move() {
-//   if(move) x += xspeed; // Increment x
-//    if(move)y += yspeed; // Increment y
-//     rot+=rotSpeed
-//    // Check horizontal edges
-//    if (x > width || x < 0) {
-//      xspeed *= - 1;
-//    }
-//    //Check vertical edges
-//    if (y > height || y < 0) {
-//      yspeed *= - 1;
-//    }
-// }
-//}
 
 class Light {
   float posX, posY, radius;
@@ -237,14 +175,11 @@ class Light {
       block.addPoint(posX+ dx0, posY + dy0);
       block.addPoint(posX+ dx2*2, posY + dy2*2);
       block.addPoint(posX+ dx1, posY + dy1);
- for (int i=0;i<block.x.size()-1;i++) {
-        pointsX.add(block.x.get(i));
-        pointsY.add(block.y.get(i));
-        segs.add(new Segment(block.x.get(i), block.y.get(i), block.x.get(i+1), block.y.get(i+1)));
+      for (Vertex v : block.polygon) {
+        pointsX.add(v.x);
+        pointsY.add(v.y);
+        segs.add(new Segment(v.x,v.y,v.next.x,v.next.y));
       }
-      pointsX.add(block.x.get(block.x.size()-1));
-      pointsY.add(block.y.get(block.y.size()-1));
-      segs.add(new Segment(block.x.get(0), block.y.get(0), block.x.get(block.x.size()-1), block.y.get(block.x.size()-1)));
       for (int j=0;j<pointsX.size();j++) {
 
         double angle = Math.atan2(pointsY.get(j)-posY, pointsX.get(j)-posX);
