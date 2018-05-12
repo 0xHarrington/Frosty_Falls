@@ -107,7 +107,7 @@ class Solid {
     if (lit) fill(255,255,255);
     else fill(150, 230, 100);
     for (Solid other : solids) {
-      if (other != boundary && other != this && this.polygon.detectCollision(other.polygon)) {
+      if (other != boundary && other != this && this.polygon.detectCollision(other.polygon).magSq() > 0) {
         fill(0,0,255);
         break;
       }
@@ -140,6 +140,13 @@ class Player extends Solid {
           velocity = new PVector(0, 0);
       }
       for (Vertex v : polygon) v.add(velocity);
+    }
+    for (Solid other : solids) {
+      if (other == boundary || other == this) continue;
+      PVector impulse = polygon.detectCollision(other.polygon);
+      if (impulse.magSq() <= EPS) continue;
+      System.out.println(impulse);
+      for (Vertex v : polygon) v.add(impulse);
     }
   }
 }

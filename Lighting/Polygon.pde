@@ -38,11 +38,12 @@ class Polygon implements Iterable<Vertex> {
       return toReturn;
     }
   }
-  public boolean detectCollision(Polygon other) {
+  public PVector detectCollision(Polygon other) {
     ArrayList<Vertex> together = new ArrayList<Vertex>();
     for (Vertex v : this) together.add(v);
     for (Vertex v : other) together.add(v);
-    
+    float dt = INFINITY;
+    PVector toGo = new PVector(0,0);
     for (Vertex v : together) {
       PVector edge = PVector.sub(v.next, v);
       PVector normal = new PVector(edge.y,-edge.x);
@@ -58,8 +59,18 @@ class Polygon implements Iterable<Vertex> {
         theirMax = t > theirMax ? t : theirMax;
       }
       if (myMax < theirMin || theirMax < myMin)
-        return false;
+        return new PVector(0,0);
+      else {
+        if (myMax - theirMin > 0 && myMax - theirMin < dt) {
+          dt = myMax - theirMin;
+          toGo = PVector.mult(normal, -1).normalize();
+        }
+        if (theirMax - myMin > 0 && theirMax - myMin < dt) {
+          dt = theirMax - myMin;
+          toGo = normal.copy().normalize();
+        }
+      }
     }
-    return true;
+    return toGo.mult(dt);
   }
 }
