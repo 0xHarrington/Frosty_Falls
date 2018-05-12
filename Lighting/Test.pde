@@ -1,12 +1,10 @@
-LightManager light;
+LightManager lightManager;
 ArrayList<Light> lights;
 ArrayList<Ball> balls;
 boolean move = true;
 
-
 void draw() {
-  light.beginLight(color(50));
-  //Movable shape = new Movable();
+  lightManager.beginLight(color(50));
   
   for (Solid solid : solids) solid.move();
   for (int i = 0; i < balls.size(); i++) {
@@ -15,24 +13,30 @@ void draw() {
     lights.get(i).move(balls.get(i).x,balls.get(i).y);
     //lights.get(i).setAngle(balls.get(i).rot,balls.get(i).rot+balls.get(i).angdif);
   }
-  light.castLight();
+  lightManager.castLight();
   text(frameRate,30,30);
 }
+
 void mousePressed(){
   balls.add(new Ball(mouseX,mouseY));
+  
   //Light l = new Light(mouseX,mouseY,color(random(0,255),random(0,255),random(0,255)),random(300,1000),255);
   Light l = new Light(mouseX,mouseY,color(255,255,255),100,255);
+  
   //brightness range 0 - 255
-lights.add(l);
-light.addLight(l);
+  lights.add(l);
+  lightManager.addLight(l);
 }
+
 void keyPressed(){
-  if(key==' ')move=!move;
+  if (key==' ') move = !move;
   else if (key == 'd') {
     
   }
-else light.removeLights();
+else lightManager.removeLights();
 }
+
+
 class Ball {
   float rotSpeed = random(-5,5), rot=random(0,360);
   float angdif = random(200,320);
