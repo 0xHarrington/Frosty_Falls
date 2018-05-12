@@ -6,6 +6,7 @@ PGraphics buff;
 ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
 PImage imgMap;
+Solid boundary;
 void setup() { 
   balls= new ArrayList<Ball>();
   size(800,600,P3D);
@@ -14,12 +15,13 @@ void setup() {
   light = new LightManager();
   
   
-  Solid shape = new Oscillator(new PVector(1,1),100);
+  Solid shape = new Oscillator(new PVector(1,1),200);
+  //Solid shape = new Player();
   shape.addPoint(100, 150);
   shape.addPoint(300, 150);
   shape.addPoint(300, 180);
   shape.addPoint(100, 180);
-  Solid shape3 = new Solid();
+  Solid shape3 = new Player();
   Solid shape2 = new Solid();
   Solid shape4 = new Solid();
   
@@ -44,7 +46,7 @@ void setup() {
   light.addObject(shape4);
 
   // add image boundary for intersections
-  Solid boundary = new Solid();
+  boundary = new Solid();
   boundary.visible = false;
   boundary.addPoint(0, 0);
   boundary.addPoint(width, 0);
@@ -97,28 +99,49 @@ class Solid {
   Polygon polygon = new Polygon();
   boolean lit;
   
-  void addPoint(float xa, float ya) {
-    polygon.addPoint(xa,ya);
-  }
-  void addPoint(PVector p) {
-    polygon.addPoint(p.x,p.y);
-  }
+  void addPoint(float xa, float ya) {polygon.addPoint(xa,ya);}
+  void addPoint(PVector p) {polygon.addPoint(p.x,p.y);}
   
   void display() {
     noStroke();
     if (lit) fill(255,255,255);
     else fill(150, 230, 100);
+    for (Solid other : solids) {
+      if (other != boundary && other != this && this.polygon.detectCollision(other.polygon)) {
+        fill(0,0,255);
+        break;
+      }
+    }
     beginShape();
     for (Vertex v: polygon) vertex(v.x,v.y);
     endShape();
   }
-  void move() {
-    ;
-  }
+  void move() {;}
 }
 
-class Moving extends Solid {
-  PVector velocity;
+class Player extends Solid {
+  void move() {
+    if (keyPressed) {
+      PVector velocity;
+      switch(keyCode) {
+        case UP:
+          velocity = new PVector(0, -1);
+          break;
+        case DOWN:
+          velocity = new PVector(0, 1);
+          break;
+        case LEFT:
+          velocity = new PVector(-1, 0);
+          break;
+        case RIGHT:
+          velocity = new PVector(1, 0);
+          break;
+        default:
+          velocity = new PVector(0, 0);
+      }
+      for (Vertex v : polygon) v.add(velocity);
+    }
+  }
 }
 
 class Oscillator extends Solid {
@@ -139,8 +162,7 @@ class Oscillator extends Solid {
       this.direction.mult(-1);
       stepDir *= -1;
     }
-    for (Vertex v: this.polygon)
-      v.add(direction);
+    for (Vertex v: this.polygon) v.add(direction);
     stepsFromStart += stepDir;
   }
 }
