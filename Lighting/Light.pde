@@ -1,6 +1,3 @@
-final float INFINITY = 999999;
-final float EPS = .00001;
-
 // Represent ray as point and direction
 class Ray {
   PVector pos, dir;

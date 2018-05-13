@@ -2,16 +2,32 @@ LightManager lightManager;
 ArrayList<Light> lights;
 ArrayList<Ball> balls;
 boolean move = false;
+PVector gravity = new PVector(0, 0.66);
+boolean dead = false;
 
-PVector gravity = new PVector(0, 0.25);
-int maxV = 4;
-float walkingSpeed = 3;
-float lightScale = 1.5;
+void spawn() {
+  solids.remove(player);
+  player = new Player(new PVector(10, height - height/10 + 2));
+  player.addPoint(10, height - height/10 + 2);
+  player.addPoint(10, height - height/10);
+  player.addPoint(11, height - height/10);
+  player.addPoint(11, height - height/10 + 2);
+  solids.add(player);
+  dead = false;
+}
+
+void die() {
+  dead = true;
+  //solids.remove(player);
+}
 
 void draw() {
   lightManager.beginLight(color(50));
   
-  for (Solid solid : solids) solid.move();
+  for (Vertex v : player.polygon) if (v.y > height) dead = true;
+  if (dead) text("Bye bye Frosty", width / 2, height / 2);
+  else for (Solid solid : solids) solid.move();
+  
   
   for (int i = 0; i < balls.size(); i++) {
     balls.get(i).display();
@@ -36,30 +52,12 @@ void mousePressed(){
 
 void keyPressed(){
   if (key == 'm') move = !move;
-  if (key == ' ' && player.standing) player.velocity.y = -10;
   if (key == 'c') lightManager.removeLights();
-  switch(keyCode) {
-      case LEFT:
-        player.velocity.x = -walkingSpeed;
-        break;
-      case RIGHT:
-        player.velocity.x = walkingSpeed;
-        break;
-      default:
-        ;
-    }
+  if (key == 'r') {spawn(); System.out.println("restarting");}
+  player.keyPressed();
 }
 void keyReleased() {
-  switch(keyCode) {
-      case LEFT:
-        if (player.velocity.x < 0) player.velocity.x = 0;
-        break;
-      case RIGHT:
-        if (player.velocity.x > 0) player.velocity.x = 0;
-        break;
-      default:
-        ;
-    }
+  player.keyReleased();
 }
   
   
