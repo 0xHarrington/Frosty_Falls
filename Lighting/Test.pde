@@ -25,7 +25,10 @@ void draw() {
   lightManager.beginLight(color(50));
   
   for (Vertex v : player.polygon) if (v.y > height) dead = true;
-  if (dead) text("Bye bye Frosty", width / 2, height / 2);
+  if (dead) {
+    text("Bye bye Frosty", width / 2 - 20, height / 2);
+    text("Press 'r' to respawn", width / 2 - 35, height / 2 + 15);
+  }
   else for (Solid solid : solids) solid.move();
   
   
