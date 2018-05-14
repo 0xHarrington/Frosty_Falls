@@ -8,8 +8,8 @@ class Solid {
   
   
   Solid() {
-    myLitColor = color(150, 230, 100);
-    myUnlitColor = color(150, 230, 100);
+    myLitColor = color(69,179,224);
+    myUnlitColor = color(0,176,255);
   }
   
   void addPoint(float xa, float ya) {polygon.addPoint(xa,ya);}
@@ -31,6 +31,7 @@ class Solid {
 }
 
 class Player extends Solid {
+  float minx = width, maxx = 0, miny = height, maxy = 0;  
   PVector velocity = new PVector(0,0);  
   boolean standing = false;
   float walkingSpeed = 10.0;
@@ -50,8 +51,8 @@ class Player extends Solid {
     super();
     super.isplayer = true;
     origin = o;
-    myLitColor = color(143,242,216);
-    myUnlitColor = color(255,255,255);
+    super.myLitColor = color(143,242,216);
+    super.myUnlitColor = color(255,255,255);
   }
   
   void keyPressed() {
@@ -78,6 +79,12 @@ class Player extends Solid {
     offsets.add(PVector.sub(p,origin));
     super.addPoint(p);
   }
+  
+  boolean checkFinish() {
+    float r = 3 * FIN_RAD / 4;
+    return (minx <= endx + r && maxx >= endx - r && 
+            miny <= endy + r && maxy >= endy - r);
+  }
  
   void move() {
     if (lit) size -= .5;
@@ -85,9 +92,10 @@ class Player extends Solid {
     
     if (size < 5) {die();return;}
     
+    if (checkFinish()) complete = true;
+    
     polygon.clear();
     for (PVector offset : offsets) polygon.addPoint(PVector.add(PVector.mult(offset,size), origin));
-    
     
     if (standing) {
       if (lit) {if (prevLit) velocity.x += leaningSpeed * direction; else velocity.x = slidingSpeed * direction;}
@@ -123,7 +131,12 @@ class Player extends Solid {
       PVector parallel = new PVector(impulse.y, -impulse.x);
       velocity = parallel.mult(velocity.dot(parallel));
     }
-    
+    for (Vertex v : polygon) {
+      minx = min(v.x, minx);
+      maxx = max(v.x, maxx);
+      miny = min(v.y, miny);
+      maxy = max(v.y, maxy);
+    }
   }
 }
 

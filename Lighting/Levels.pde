@@ -1,10 +1,8 @@
 final int NUM_LEVELS = 1;
 int whichLevel = 0;
 float floorthicc = height / 40;
-float endRad, endx, endy;
-
-
-
+float endx, endy;
+final float FIN_RAD = 25, LIGHT_RAD = 5;
 
 private void addBlock(float tlx, float tly, float brx, float bry) {
   Solid newBlock = new Solid();
@@ -16,18 +14,22 @@ private void addBlock(float tlx, float tly, float brx, float bry) {
 }
 
 public void addLight(float x, float y) {
-  balls.add(new Ball(x, y));
+  balls.add(new Ball(x, y, 225, LIGHT_RAD, false));
   Light l = new Light(x, y, color(255,255,255), 100, 255);
   lights.add(l);
   lightManager.addLight(l);  
 }
 
-public void addEnd(float radius, float x, float y) {
-  fill(75,181,67);
-  ellipse(x, y, radius, radius);
-  endRad = radius;
+private void addEnd(float x, float y) {
+  balls.add(new Ball(x, y, color(119,255,119,220), FIN_RAD, true));
   endx = x;
   endy = y;
+}
+
+public void clearLevel() {
+  solids.clear();
+  balls.clear();
+  lightManager.removeLights();
 }
 
 public void loadLevel(int l) {
@@ -47,53 +49,32 @@ public void loadLevel(int l) {
     case 1: 
       addBlock(0, height-(.5*ygrid), width, height);
       addBlock(5.5*xgrid, 2*ygrid, 7*xgrid, 14.5*ygrid);
-      addBlock(12*xgrid, 2*ygrid, 13.5*xgrid, 16*ygrid);
+      addBlock(12*xgrid, 2*ygrid, 13.5*xgrid, 18.5*ygrid);
       addLight(9.5*xgrid, 2*ygrid);
+      addEnd(16*xgrid, 17.5*ygrid);
       break;
     
     
     
     
     default:
+      addEnd(15*xgrid, 5*ygrid);
       // Floors
       float gapHalfWidth = 300;
-      Solid floor1 = new Solid();
-      floor1.addPoint(0, height - floorthicc);
-      floor1.addPoint(width / 2 - gapHalfWidth, height - floorthicc);
-      floor1.addPoint(width / 2 - gapHalfWidth, height + 100);
-      floor1.addPoint(0, height + 100);
-      
-      Solid floor2 = new Solid();
-      floor2.addPoint(width / 2 + gapHalfWidth + 100, height - floorthicc);
-      floor2.addPoint(width, height - floorthicc);
-      floor2.addPoint(width, height + 100);
-      floor2.addPoint(width / 2 + gapHalfWidth + 100, height + 100);
+      addBlock(0, height - floorthicc, width / 2 - gapHalfWidth, height + 100);
+      addBlock(width / 2 + gapHalfWidth + 100, height - floorthicc, width, height + 100);   
       
       // Platforms
-      Solid shape = new Solid();
-      shape.addPoint(100, 150);
-      shape.addPoint(300, 150);
-      shape.addPoint(300, 180);
-      shape.addPoint(100, 180);
-      
+      addBlock(100, 150, 300, 180);
+      addBlock(610, 540, 790, 620);
       Solid shape2 = new Solid();
-      Solid shape4 = new Solid();
       
       shape2.addPoint(440, 340);
       shape2.addPoint(420, 280);
       shape2.addPoint(370, 340);
       
-      shape4.addPoint(610, 600);
-      shape4.addPoint(790, 600);
-      shape4.addPoint(790, 620);
-      shape4.addPoint(610, 620);
-      
       // Add them
-      solids.add(shape);
       solids.add(shape2);
-      solids.add(shape4);
-      solids.add(floor1);
-      solids.add(floor2);
       break;
   }
 }

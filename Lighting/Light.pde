@@ -1,3 +1,7 @@
+LightManager lightManager;
+ArrayList<Light> lights;
+ArrayList<Ball> balls;
+
 class LightManager {
   color c;
   Solid boundary;
@@ -43,9 +47,11 @@ class Light {
   float ang1 = 360;
   float ang2 = 360;
   boolean dead = false;
+  
   void kill() {
     dead = true;
   }
+  
   Light(float posX, float posY, color c, float radius, float brightness) {
     this.brightness = brightness;
     this.pos = new PVector(posX, posY);
@@ -57,15 +63,18 @@ class Light {
     lig = lightImg.get();
     lig.resize(0, (int)radius);
   }
+  
   void setRadius(float radius) {
     this.radius=radius;
     lig = lightImg.get();
     lig.resize((int)radius, (int)radius);
   }
+  
   void setAngle(float ang1, float ang2) {
     this.ang1 = ang1;
     this.ang2 = ang2;
   }
+  
   void move(float posX, float posY) {
     this.posX=posX;
     this.posY=posY;
@@ -82,9 +91,9 @@ class Light {
     this.c=c;
     this.radius=radius;
   }
+  
   void cast() {
-
-    if (!dead) {
+    if (!dead && !complete) {
       ArrayList <Intersection>intersects = new ArrayList<Intersection>();
       ArrayList<Float> uniqueAngles = new ArrayList<Float>();
       

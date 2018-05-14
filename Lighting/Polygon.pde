@@ -30,6 +30,7 @@ class Vertex extends PVector{
   }
 }
 
+/* BEGIN FROM ALGS4 (COS 226)*/
 class Point2D extends PVector implements Comparable<Point2D> {
   Point2D(float x, float y) {
     super(x,y);
@@ -110,6 +111,7 @@ Polygon convexHull(ArrayList<PVector> points) {
   for (Point2D point : hull) poly.addPoint(point.x,point.y);
   return poly;
 }
+/* END FROM ALGS4 (COS 226)*/
 
 
 // Represent segment as point and vector (magnitude matters)

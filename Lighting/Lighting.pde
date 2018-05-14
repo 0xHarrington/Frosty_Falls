@@ -13,8 +13,10 @@ Player player;
 final float INFINITY = 999999;
 final float EPS = .0001;
 
+
+/* CONTROL FLOW */
 void setup() { 
-  balls= new ArrayList<Ball>();
+  balls = new ArrayList<Ball>();
   fullScreen(P3D); 
   //size(2000,1000);
   
@@ -23,6 +25,7 @@ void setup() {
   
   lightImg = loadImage("http://i.imgur.com/DADrPTA.png");
 //  playerImg = loadImage("olaf.png");
+
   spawn();
 
   /* Load Level Design */
@@ -32,7 +35,8 @@ void setup() {
 void draw() {
   lightManager.beginLight(color(50));
   
-  for (Vertex v : player.polygon) if (v.y > height) dead = true;
+  for (Vertex v : player.polygon) if (v.y > height) die();
+  
   if (dead) {
     fill(109);
     rect(0,0,width,height);
@@ -43,17 +47,42 @@ void draw() {
     text("Press 'r' to respawn", width / 2, height / 2 + 20);
     noFill();
   }
+  else if (finished) {
+    clearLevel();
+    background(75,181,67);
+    textSize(30);
+    textAlign(CENTER);
+    fill(50);
+    text("Thank you for playing!",width / 2, height/2 - 20);
+    textSize(15);
+    text("Press ESCAPE to quit",width / 2, height/2 + 10); 
+  }
+  else if (complete) {
+    fill(75,181,67);
+    rect(0,0,width, height);
+    textSize(20);
+    textAlign(CENTER);
+    fill(50);
+    text("Level Complete",width / 2, height/2);
+    text("Press ENTER to continue",width / 2, height/2 + 20);
+  }
   else for (Solid solid : solids) solid.move();
   
-  
+  int passedBall = 0;
   for (int i = 0; i < balls.size(); i++) {
-    balls.get(i).display();
-    balls.get(i).move();
-    lights.get(i).move(balls.get(i).x,balls.get(i).y);
-    //lights.get(i).setAngle(balls.get(i).rot,balls.get(i).rot+balls.get(i).angdif);
+    Ball bi = balls.get(i);
+    bi.display();
+    if (bi.isFinish) passedBall = 1;
+    if (!bi.isFinish) { 
+      bi.move();
+      lights.get(i - passedBall).move(bi.x, bi.y);
+    }
   }
+  
   lightManager.castLight();
-  text(frameRate,30,30);
+  
+  text(frameRate,40,40);
+  text(String.valueOf(complete), 40, 50);
 }
 
 void mousePressed() {
@@ -62,18 +91,15 @@ void mousePressed() {
 
 void keyPressed(){
   if (key == '\n' && complete) {
-    if (whichLevel < NUM_LEVELS) {
-      fill(75,181,67);
-      rect(0,0,width, height);
-      textSize(20);
-      textAlign(CENTER);
-      fill(50);
-      text("Thank you for playing!",width / 2, height/2);
-      text("Press ecsape to quit",width / 2, height/2 + 20);
+    if (whichLevel >= NUM_LEVELS) finished = true;
+    else {
+      complete = false;
+      clearLevel();
+      loadLevel(++whichLevel);
+      spawn();
     }
-    else whichLevel++;
-    
   }
+  
   if (key == 'm') move = !move;
   if (key == 'c') lightManager.removeLights();
   if (key == 'r') {spawn(); System.out.println("restarting");}
