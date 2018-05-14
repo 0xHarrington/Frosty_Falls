@@ -76,7 +76,6 @@ class Player extends Solid {
   }
  
   void move() {
-    
     if (lit) size -= .5;
     else if (size < 100) size += 1;
     

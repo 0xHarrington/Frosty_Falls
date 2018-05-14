@@ -4,6 +4,7 @@ ArrayList<Ball> balls;
 boolean move = false;
 PVector gravity = new PVector(0, 0.66);
 boolean dead = false;
+boolean complete = false;
 
 void spawn() {
   solids.remove(player);
@@ -26,8 +27,14 @@ void draw() {
   
   for (Vertex v : player.polygon) if (v.y > height) dead = true;
   if (dead) {
-    text("Bye bye Frosty", width / 2 - 20, height / 2);
-    text("Press 'r' to respawn", width / 2 - 35, height / 2 + 15);
+    fill(109);
+    rect(0,0,width,height);
+    textSize(20);
+    textAlign(CENTER);
+    fill(50);
+    text("Bye bye Frosty", width / 2 , height / 2);
+    text("Press 'r' to respawn", width / 2, height / 2 + 20);
+    noFill();
   }
   else for (Solid solid : solids) solid.move();
   
@@ -42,18 +49,24 @@ void draw() {
   text(frameRate,30,30);
 }
 
-void mousePressed(){
-  balls.add(new Ball(mouseX,mouseY));
-  
-  //Light l = new Light(mouseX,mouseY,color(random(0,255),random(0,255),random(0,255)),random(300,1000),255);
-  Light l = new Light(mouseX,mouseY,color(255,255,255),100,255);
-  
-  //brightness range 0 - 255
-  lights.add(l);
-  lightManager.addLight(l);
+void mousePressed() {
+  addLight(mouseX,mouseY);
 }
 
 void keyPressed(){
+  if (key == '\n' && complete) {
+    if (whichLevel < NUM_LEVELS) {
+      fill(75,181,67);
+      rect(0,0,width, height);
+      textSize(20);
+      textAlign(CENTER);
+      fill(50);
+      text("Thank you for playing!",width / 2, height/2);
+      text("Press ecsape to quit",width / 2, height/2 + 20);
+    }
+    else whichLevel++;
+    
+  }
   if (key == 'm') move = !move;
   if (key == 'c') lightManager.removeLights();
   if (key == 'r') {spawn(); System.out.println("restarting");}

@@ -89,7 +89,6 @@ Polygon convexHull(ArrayList<PVector> points) {
   for (Point2D point : hull) poly.addPoint(point.x,point.y);
   return poly;
 }
-/* END FROM ALGS4 (COS 226)*/
 
 
 // Represent segment as point and vector (magnitude matters)
