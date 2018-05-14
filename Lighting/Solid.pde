@@ -3,11 +3,11 @@ class Solid {
   boolean opaque =  true;
   Polygon polygon = new Polygon();
   boolean lit;
+  boolean isplayer = false;
   color myColor, myLitColor, myUnlitColor;
   
   
   Solid() {
-    super();
     myLitColor = color(150, 230, 100);
     myUnlitColor = color(150, 230, 100);
   }
@@ -20,11 +20,14 @@ class Solid {
     else myColor = myUnlitColor;
     noStroke();
     fill(myColor);
+    
     beginShape();
+    if (isplayer) texture(playerImg);
     for (Vertex v: polygon) vertex(v.x,v.y);
     endShape();
   }
-  void move() {;}
+  
+  void move() {}
 }
 
 class Player extends Solid {
@@ -45,6 +48,7 @@ class Player extends Solid {
   
   Player(PVector o) {
     super();
+    super.isplayer = true;
     origin = o;
     myLitColor = color(143,242,216);
     myUnlitColor = color(255,255,255);
@@ -99,8 +103,13 @@ class Player extends Solid {
     prevLit = lit;
     velocity.add(gravity);
     ArrayList<PVector> span = new ArrayList<PVector>();
-    for (Vertex v : player.polygon) {span.add(PVector.add(v,PVector.mult(velocity, EPS))); v.add(velocity); span.add(v);}
+    for (Vertex v : player.polygon) {
+      span.add(PVector.add(v,PVector.mult(velocity, EPS))); 
+      v.add(velocity); 
+      span.add(v);
+    }
     origin.add(velocity);
+    
     // Collision Code
     player.standing = false;
     for (Solid other : solids) {
@@ -114,7 +123,6 @@ class Player extends Solid {
       PVector parallel = new PVector(impulse.y, -impulse.x);
       velocity = parallel.mult(velocity.dot(parallel));
     }
-    
     
   }
 }

@@ -1,5 +1,27 @@
 final int CLOCKWISE = -1, COLLINEAR = 0, COUNTER_CLOCKWISE = 1;
 
+// Represent ray as point and direction
+class Ray {
+  PVector pos, dir;
+  Ray(PVector pos, PVector dir) {
+    this.pos = pos;
+    this.dir = dir;
+  }
+}
+
+class Intersection extends PVector {
+  float L, ang;
+  Segment segment;
+  Intersection(double x, double y, double L, Segment seg) {
+    super((float) x, (float) y);
+    this.segment = seg;
+    this.L = (float) L;
+  }
+  Intersection(PVector p, float L) {
+    super(p.x, p.y);
+    this.L = L;
+  }
+}
 
 class Vertex extends PVector{
   Vertex next;
@@ -7,7 +29,6 @@ class Vertex extends PVector{
     super(x,y);
   }
 }
-/* BEGIN FROM ALGS4 (COS 226)*/
 
 class Point2D extends PVector implements Comparable<Point2D> {
   Point2D(float x, float y) {

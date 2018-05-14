@@ -1,3 +1,11 @@
+final int NUM_LEVELS = 1;
+int whichLevel = 0;
+float floorthicc = height / 40;
+float endRad, endx, endy;
+
+
+
+
 private void addBlock(float tlx, float tly, float brx, float bry) {
   Solid newBlock = new Solid();
   newBlock.addPoint(tlx, tly);
@@ -14,17 +22,25 @@ public void addLight(float x, float y) {
   lightManager.addLight(l);  
 }
 
+public void addEnd(float radius, float x, float y) {
+  fill(75,181,67);
+  ellipse(x, y, radius, radius);
+  endRad = radius;
+  endx = x;
+  endy = y;
+}
+
 public void loadLevel(int l) {
   float wallthicc = width;
   
-  /* FIXED THINGS */
+  /* FIXED DESIGN */
   // Walls
   addBlock(-wallthicc, 0, 0, height);
   addBlock(width, 0, width + wallthicc, height);
   // Ceiling
   addBlock(0, -floorthicc, width, 0);
 
-  /* VARIABLE STUFF */
+  /* VARIABLE DESIGN */
   float xgrid = width / 20;
   float ygrid = height / 20;
   switch (l) {

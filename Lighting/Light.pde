@@ -1,23 +1,36 @@
-// Represent ray as point and direction
-class Ray {
-  PVector pos, dir;
-  Ray(PVector pos, PVector dir) {
-    this.pos = pos;
-    this.dir = dir;
-  }
-}
+class LightManager {
+  color c;
+  Solid boundary;
+  LightManager() {
+    segs = new ArrayList<Segment>();
+    allPoints = new ArrayList<PVector>();
+    lightsa = new ArrayList<Light>();
 
-class Intersection extends PVector {
-  float L, ang;
-  Segment segment;
-  Intersection(double x, double y, double L, Segment seg) {
-    super((float) x, (float) y);
-    this.segment = seg;
-    this.L = (float) L;
+    solids = new ArrayList<Solid>();
   }
-  Intersection(PVector p, float L) {
-    super(p.x, p.y);
-    this.L = L;
+  void addLight(Light li) { lightsa.add(li);}
+  void removeLights() { lightsa.clear();}
+  void beginLight(color c) {
+    this.c = c;
+    background(c);
+  }
+
+  void castLight() {
+    blendMode(ADD);
+    allPoints.clear();
+    segs.clear();
+
+    // populate segments
+    for (Solid s:solids) {
+      if (s.visible) s.display();
+      if (!s.opaque) continue;
+      for  (Vertex v: s.polygon) {
+        allPoints.add(v);
+        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y, s));
+      }
+      s.lit = false;
+    }
+    for (Light light : lightsa) light.cast();
   }
 }
 
@@ -41,12 +54,12 @@ class Light {
     this.c=c;
 
     this.radius=radius;
-    lig = imgMap.get();
+    lig = lightImg.get();
     lig.resize(0, (int)radius);
   }
   void setRadius(float radius) {
     this.radius=radius;
-    lig = imgMap.get();
+    lig = lightImg.get();
     lig.resize((int)radius, (int)radius);
   }
   void setAngle(float ang1, float ang2) {
@@ -61,7 +74,7 @@ class Light {
 
   void update(float posX, float posY, color c, float radius, float brightness) {
     this.brightness=brightness;
-    lig = imgMap.get();
+    lig = lightImg.get();
     lig.resize(0, (int)radius);
     this.posX=posX;
     this.posY=posY;

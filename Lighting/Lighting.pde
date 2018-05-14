@@ -4,16 +4,14 @@ ArrayList<Light> lightsa;
 boolean debug = false;
 ArrayList<Segment> segs;
 ArrayList<PVector> allPoints;
-PImage imgMap;
 Solid boundary;
+
+PImage lightImg;
+PImage playerImg;
 Player player;
+
 final float INFINITY = 999999;
 final float EPS = .0001;
-
-final int NUM_LEVELS = 1;
-int whichLevel = 0;
-float floorthicc = height / 40;
-
 
 void setup() { 
   balls= new ArrayList<Ball>();
@@ -23,57 +21,65 @@ void setup() {
   lights = new ArrayList<Light>();
   lightManager = new LightManager();
   
+  lightImg = loadImage("http://i.imgur.com/DADrPTA.png");
+//  playerImg = loadImage("olaf.png");
   spawn();
 
   /* Load Level Design */
   loadLevel(whichLevel);
-
-  // add image boundary for intersections
-  //boundary = new Solid();
-  //boundary.visible = false;
-  //boundary.addPoint(0, 0);
-  //boundary.addPoint(width, 0);
-  //boundary.addPoint(width, height);
-  //boundary.addPoint(0, height);
-  //solids.add(boundary);
 }
 
-class LightManager {
-  color c;
-  Solid boundary;
-  LightManager() {
-    //imgMap = loadImage("https://www.freeiconspng.com/uploads/snowman-png-1.jpg");
-    imgMap = loadImage("http://i.imgur.com/DADrPTA.png");
-    //imgMap = loadImage("olaf.png");
-    segs = new ArrayList<Segment>();
-    allPoints = new ArrayList<PVector>();
-    lightsa = new ArrayList<Light>();
-
-    solids = new ArrayList<Solid>();
+void draw() {
+  lightManager.beginLight(color(50));
+  
+  for (Vertex v : player.polygon) if (v.y > height) dead = true;
+  if (dead) {
+    fill(109);
+    rect(0,0,width,height);
+    textSize(20);
+    textAlign(CENTER);
+    fill(50);
+    text("Bye bye Frosty", width / 2 , height / 2);
+    text("Press 'r' to respawn", width / 2, height / 2 + 20);
+    noFill();
   }
-  void addLight(Light li) { lightsa.add(li);}
-  void removeLights() { lightsa.clear();}
-  void beginLight(color c) {
-    this.c = c;
-    background(c);
+  else for (Solid solid : solids) solid.move();
+  
+  
+  for (int i = 0; i < balls.size(); i++) {
+    balls.get(i).display();
+    balls.get(i).move();
+    lights.get(i).move(balls.get(i).x,balls.get(i).y);
+    //lights.get(i).setAngle(balls.get(i).rot,balls.get(i).rot+balls.get(i).angdif);
   }
+  lightManager.castLight();
+  text(frameRate,30,30);
+}
 
-  void castLight() {
-    blendMode(ADD);
-    allPoints.clear();
-    segs.clear();
-    
+void mousePressed() {
+  addLight(mouseX,mouseY);
+}
 
-    // populate segments
-    for (Solid s:solids) {
-      if (s.visible) s.display();
-      if (!s.opaque) continue;
-      for  (Vertex v: s.polygon) {
-        allPoints.add(v);
-        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y, s));
-      }
-      s.lit = false;
+void keyPressed(){
+  if (key == '\n' && complete) {
+    if (whichLevel < NUM_LEVELS) {
+      fill(75,181,67);
+      rect(0,0,width, height);
+      textSize(20);
+      textAlign(CENTER);
+      fill(50);
+      text("Thank you for playing!",width / 2, height/2);
+      text("Press ecsape to quit",width / 2, height/2 + 20);
     }
-    for (Light light : lightsa) light.cast();
+    else whichLevel++;
+    
   }
+  if (key == 'm') move = !move;
+  if (key == 'c') lightManager.removeLights();
+  if (key == 'r') {spawn(); System.out.println("restarting");}
+  player.keyPressed();
+}
+
+void keyReleased() {
+  player.keyReleased();
 }
