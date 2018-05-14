@@ -26,9 +26,8 @@ void setup() {
   lightImg = loadImage("http://i.imgur.com/DADrPTA.png");
 //  playerImg = loadImage("olaf.png");
 
-  spawn();
-
   /* Load Level Design */
+  clearLevel();
   loadLevel(whichLevel);
 }
 
@@ -45,7 +44,6 @@ void draw() {
     fill(50);
     text("Bye bye Frosty", width / 2 , height / 2);
     text("Press 'r' to respawn", width / 2, height / 2 + 20);
-    noFill();
   }
   else if (finished) {
     clearLevel();
@@ -68,6 +66,7 @@ void draw() {
   }
   else for (Solid solid : solids) solid.move();
   
+  // This "passedBall" solution total workaround, still breaks occasionally
   int passedBall = 0;
   for (int i = 0; i < balls.size(); i++) {
     Ball bi = balls.get(i);
@@ -96,13 +95,17 @@ void keyPressed(){
       complete = false;
       clearLevel();
       loadLevel(++whichLevel);
-      spawn();
     }
   }
   
   if (key == 'm') move = !move;
   if (key == 'c') lightManager.removeLights();
-  if (key == 'r') {spawn(); System.out.println("restarting");}
+  if (key == 'r') {
+    clearLevel();
+    loadLevel(whichLevel); 
+    System.out.println("restarting");
+  }
+  
   player.keyPressed();
 }
 

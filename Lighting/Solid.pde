@@ -1,3 +1,26 @@
+boolean move = false;
+PVector gravity = new PVector(0, 0.66);
+boolean dead = false;
+boolean complete = false;
+boolean finished = false;
+
+void spawn(float w, float x, float y) {
+  solids.remove(player);
+
+  float h = 1.75 * w;
+  player = new Player(new PVector(x, y));
+  player.addPoint(x, y-h);
+  player.addPoint(x+w, y-h);
+  player.addPoint(x+w, y);
+  player.addPoint(x, y);
+  solids.add(player);
+  dead = false;
+}
+
+void die() {
+  dead = true;
+}
+
 class Solid {
   boolean visible = true;
   boolean opaque =  true;
@@ -5,7 +28,6 @@ class Solid {
   boolean lit;
   boolean isplayer = false;
   color myColor, myLitColor, myUnlitColor;
-  
   
   Solid() {
     myLitColor = color(69,179,224);

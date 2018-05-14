@@ -1,6 +1,6 @@
-final int NUM_LEVELS = 1;
-int whichLevel = 0;
-float floorthicc = height / 40;
+final int NUM_LEVELS = 4;
+int whichLevel = 3;
+float floorthicc = 20;
 float endx, endy;
 final float FIN_RAD = 25, LIGHT_RAD = 5;
 
@@ -27,6 +27,9 @@ private void addEnd(float x, float y) {
 }
 
 public void clearLevel() {
+  move = false;
+  endx = INFINITY;
+  endy = INFINITY;
   solids.clear();
   balls.clear();
   lightManager.removeLights();
@@ -47,16 +50,45 @@ public void loadLevel(int l) {
   float ygrid = height / 20;
   switch (l) {
     case 1: 
-      addBlock(0, height-(.5*ygrid), width, height);
+      addBlock(0, height-floorthicc, width, height);
       addBlock(5.5*xgrid, 2*ygrid, 7*xgrid, 14.5*ygrid);
       addBlock(12*xgrid, 2*ygrid, 13.5*xgrid, 18.5*ygrid);
       addLight(9.5*xgrid, 2*ygrid);
       addEnd(16*xgrid, 17.5*ygrid);
+      spawn(.5, 20, height-floorthicc);
       break;
     
-    
-    
-    
+    case 2:
+      addBlock(0, height-floorthicc, width, height);
+      addBlock(xgrid, 14*ygrid, 5.5*xgrid, 15*ygrid);
+      addBlock(14.5*xgrid, 11.5*ygrid, 19*xgrid, 12.5*ygrid);
+      addBlock(0.25*xgrid, 6.5*ygrid, 4.75*xgrid, 7.5*ygrid);
+      addBlock(8*xgrid, 1*ygrid, 12*xgrid, 2*ygrid);
+      addLight(8*xgrid, .5*ygrid);
+      addLight(12*xgrid, .5*ygrid);
+      addEnd(15, 15);
+      spawn(.5, 20, height-floorthicc);
+      break;
+      
+    case 3:
+      Solid ramp1 = new Solid();
+      ramp1.addPoint(-xgrid/10,height-ygrid/10);  
+      ramp1.addPoint(9*xgrid, 4.5*ygrid);
+      ramp1.addPoint(0,height+ygrid/10);
+      solids.add(ramp1);
+      
+      Solid ramp2 = new Solid();
+      ramp2.addPoint(width+xgrid/10,height-ygrid/10);  
+      ramp2.addPoint(width,height+ygrid/10);
+      ramp2.addPoint(11*xgrid, 4.5*ygrid);
+      solids.add(ramp2);
+      
+      addLight(1*xgrid, 1*ygrid);
+      addLight(19*xgrid, 1*ygrid);
+      move = true;
+      spawn(.25, 5*xgrid, 10*ygrid);
+      break;
+      
     default:
       addEnd(15*xgrid, 5*ygrid);
       // Floors
@@ -65,16 +97,16 @@ public void loadLevel(int l) {
       addBlock(width / 2 + gapHalfWidth + 100, height - floorthicc, width, height + 100);   
       
       // Platforms
-      addBlock(100, 150, 300, 180);
+      addBlock(50, 130, 300, 180);
       addBlock(610, 540, 790, 620);
+
       Solid shape2 = new Solid();
-      
-      shape2.addPoint(440, 340);
+      shape2.addPoint(470, 340);
       shape2.addPoint(420, 280);
       shape2.addPoint(370, 340);
-      
-      // Add them
       solids.add(shape2);
+      
+      spawn(.65, 20, height - floorthicc);
       break;
   }
 }
