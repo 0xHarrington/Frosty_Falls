@@ -12,7 +12,8 @@ Player player;
 
 final float INFINITY = 999999;
 final float EPS = .0001;
-
+final float LIGHT_SPEED = 2.5;
+final float FIN_RAD = 30, LIGHT_RAD = 5;
 
 /* CONTROL FLOW */
 void setup() { 
@@ -72,7 +73,7 @@ void draw() {
     Ball bi = balls.get(i);
     bi.display();
     if (bi.isFinish) passedBall = 1;
-    if (!bi.isFinish) { 
+    else { 
       bi.move();
       lights.get(i - passedBall).move(bi.x, bi.y);
     }
@@ -100,7 +101,7 @@ void keyPressed(){
   
   if (key == 'm') move = !move;
   if (key == 'c') lightManager.removeLights();
-  if (key == 'r') {
+  if (key == 'r' && (!complete || !finished)) {
     clearLevel();
     loadLevel(whichLevel); 
     System.out.println("restarting");

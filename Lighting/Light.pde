@@ -164,19 +164,21 @@ class Ball {
     col = c;
     x = x1;
     y = y1;
-    xspeed = random( - 5,5);
-    yspeed = random( - 5,5);
+    xspeed = random(-LIGHT_SPEED,LIGHT_SPEED);
+    yspeed = random(-LIGHT_SPEED,LIGHT_SPEED);
    }
   
   void move() {
-   if(move) x += xspeed; // Increment x
+    if(move) x += xspeed; // Increment x
     if(move)y += yspeed; // Increment y
-     rot+=rotSpeed;
+    rot+=rotSpeed;
+     
     // Check horizontal edges
     if (x > width || x < 0) {
       xspeed *= - 1;
       x += xspeed;
     }
+    
     //Check vertical edges
     if (y > height - floorthicc || y < 0) {
       yspeed *= - 1;

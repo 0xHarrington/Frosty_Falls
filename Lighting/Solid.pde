@@ -103,7 +103,9 @@ class Player extends Solid {
   }
   
   boolean checkFinish() {
-    float r = 3 * FIN_RAD / 4;
+    float num = 2;
+    float denom = 3;
+    float r = num * FIN_RAD / denom;
     return (minx <= endx + r && maxx >= endx - r && 
             miny <= endy + r && maxy >= endy - r);
   }
@@ -117,15 +119,20 @@ class Player extends Solid {
     if (checkFinish()) complete = true;
     
     polygon.clear();
-    for (PVector offset : offsets) polygon.addPoint(PVector.add(PVector.mult(offset,size), origin));
+    for (PVector offset : offsets) 
+      polygon.addPoint(PVector.add(PVector.mult(offset,size), origin));
     
     if (standing) {
-      if (lit) {if (prevLit) velocity.x += leaningSpeed * direction; else velocity.x = slidingSpeed * direction;}
+      if (lit) {
+        if (prevLit)   velocity.x += leaningSpeed * direction; 
+        else           velocity.x = slidingSpeed * direction;
+      }
       else velocity.x = walkingSpeed * direction;
     }
     else {
       if (velocity.x * direction < 0) velocity.x += leaningSpeed * direction;
-      else if (Math.abs(velocity.x) < maxLeaningSpeed) velocity.x += leaningSpeed * direction;
+      else if (Math.abs(velocity.x) < maxLeaningSpeed) 
+          velocity.x += leaningSpeed * direction;
     }
     
     velocity.x = (Math.abs(velocity.x) > maxSpeed) ? maxSpeed * direction : velocity.x;
@@ -153,12 +160,14 @@ class Player extends Solid {
       PVector parallel = new PVector(impulse.y, -impulse.x);
       velocity = parallel.mult(velocity.dot(parallel));
     }
+    
     for (Vertex v : polygon) {
       minx = min(v.x, minx);
       maxx = max(v.x, maxx);
       miny = min(v.y, miny);
       maxy = max(v.y, maxy);
     }
+    
   }
 }
 

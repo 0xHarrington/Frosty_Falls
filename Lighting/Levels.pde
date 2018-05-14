@@ -1,8 +1,7 @@
 final int NUM_LEVELS = 4;
-int whichLevel = 3;
+int whichLevel = 0;
 float floorthicc = 20;
 float endx, endy;
-final float FIN_RAD = 25, LIGHT_RAD = 5;
 
 private void addBlock(float tlx, float tly, float brx, float bry) {
   Solid newBlock = new Solid();
@@ -21,7 +20,7 @@ public void addLight(float x, float y) {
 }
 
 private void addEnd(float x, float y) {
-  balls.add(new Ball(x, y, color(119,255,119,220), FIN_RAD, true));
+  balls.add(new Ball(x, y, color(119,255,119,240), FIN_RAD, true));
   endx = x;
   endy = y;
 }
@@ -32,11 +31,12 @@ public void clearLevel() {
   endy = INFINITY;
   solids.clear();
   balls.clear();
+  lights.clear();
   lightManager.removeLights();
 }
 
 public void loadLevel(int l) {
-  float wallthicc = width;
+  float wallthicc = 2*width;
   
   /* FIXED DESIGN */
   // Walls
@@ -71,22 +71,14 @@ public void loadLevel(int l) {
       break;
       
     case 3:
-      Solid ramp1 = new Solid();
-      ramp1.addPoint(-xgrid/10,height-ygrid/10);  
-      ramp1.addPoint(9*xgrid, 4.5*ygrid);
-      ramp1.addPoint(0,height+ygrid/10);
-      solids.add(ramp1);
-      
-      Solid ramp2 = new Solid();
-      ramp2.addPoint(width+xgrid/10,height-ygrid/10);  
-      ramp2.addPoint(width,height+ygrid/10);
-      ramp2.addPoint(11*xgrid, 4.5*ygrid);
-      solids.add(ramp2);
-      
-      addLight(1*xgrid, 1*ygrid);
-      addLight(19*xgrid, 1*ygrid);
-      move = true;
-      spawn(.25, 5*xgrid, 10*ygrid);
+      addBlock(0, 3*ygrid, 9.25*xgrid, 3.5*ygrid);
+      addBlock(10.75*xgrid, 3*ygrid, width, 3.5*ygrid);
+      addBlock(0, 17.5*ygrid, 9.75*xgrid, 18*ygrid);
+      addBlock(10.25*xgrid, 17.5*ygrid, width, 18*ygrid);
+      addLight(1*xgrid, 11*ygrid);
+      addLight(19*xgrid, 11*ygrid);
+      addEnd(10*xgrid, 19*ygrid);
+      spawn(.3, EPS, 2.5*ygrid-EPS);
       break;
       
     default:
