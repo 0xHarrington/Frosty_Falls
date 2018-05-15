@@ -14,12 +14,13 @@ final float INFINITY = 999999;
 final float EPS = .0001;
 final float LIGHT_SPEED = 2.5;
 final float FIN_RAD = 30, LIGHT_RAD = 5;
+final int NUM_DOTS = 45;
 
 /* CONTROL FLOW */
 void setup() { 
   balls = new ArrayList<Ball>();
   fullScreen(P3D); 
-  //size(2000,1000);
+  //size(500,500);
   
   lights = new ArrayList<Light>();
   lightManager = new LightManager();
