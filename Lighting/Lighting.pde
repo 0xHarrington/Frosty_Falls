@@ -36,7 +36,11 @@ void setup() {
 void draw() {
   lightManager.beginLight(color(50));
   
-  for (Vertex v : player.polygon) if (v.y > height) die();
+  for (int i = 0; i < player.polygon.getVertexCount(); i++) { 
+    PVector v = player.polygon.getVertex(i);
+    //System.out.println(v);
+    if (v.y > height) die();
+  }
   
   if (dead) {
     fill(109);

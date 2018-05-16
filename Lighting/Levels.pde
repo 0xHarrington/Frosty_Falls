@@ -1,5 +1,5 @@
 final int NUM_LEVELS = 8;
-int whichLevel = 7;
+int whichLevel = 1;
 float floorthicc = 20;
 float endx, endy;
 

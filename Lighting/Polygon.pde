@@ -23,12 +23,6 @@ class Intersection extends PVector {
   }
 }
 
-class Vertex extends PVector{
-  Vertex next;
-  Vertex(float x, float y) {
-    super(x,y);
-  }
-}
 
 /* BEGIN FROM ALGS4 (COS 226)*/
 class Point2D extends PVector implements Comparable<Point2D> {
@@ -73,7 +67,7 @@ public int ccw(Point2D a, Point2D b, Point2D c) {
     else                return  COLLINEAR;
   }
 
-Polygon convexHull(ArrayList<PVector> points) {
+PShape convexHull(ArrayList<PVector> points) {
   Stack<Point2D> hull = new Stack<Point2D>();
   
   int n = points.size();
@@ -86,8 +80,10 @@ Polygon convexHull(ArrayList<PVector> points) {
   for (k1 = 1; k1 < n; k1++)
     if (!a[0].equals(a[k1])) break;
   if (k1 == n) {
-    Polygon poly = new Polygon();
-    poly.addPoint(a[0].x,a[0].y);
+    PShape poly = createShape();
+    poly.beginShape();
+    poly.vertex(a[0].x,a[0].y);
+    poly.endShape();
     return poly;
   }
   
@@ -107,8 +103,10 @@ Polygon convexHull(ArrayList<PVector> points) {
     hull.push(a[i]);
   }
   
-  Polygon poly = new Polygon();
-  for (Point2D point : hull) poly.addPoint(point.x,point.y);
+  PShape poly = createShape();
+  poly.beginShape();
+  for (Point2D point : hull) poly.vertex(point.x,point.y);
+  poly.endShape();
   return poly;
 }
 /* END FROM ALGS4 (COS 226)*/
@@ -137,92 +135,68 @@ Intersection getIntersection(Ray ray, Segment segment) {
   return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
 }
 
-class Polygon implements Iterable<Vertex> {
-  Vertex head, tail;
-  int numVerts = 0;
-  void clear() {
-    head = null;
-    tail = null;
-    numVerts = 0;
+
+public PVector detectCollision(PShape poly, PShape other, PVector motion) {
+  ArrayList<PVector> together = new ArrayList<PVector>();
+  for (int i = 0; i < poly.getVertexCount(); i++) {
+    PVector v = poly.getVertex(i);
+    together.add(v);
   }
-  void addPoint(PVector p) {
-    addPoint(p.x, p.y);
+  for (int i = 0; i < other.getVertexCount(); i++) {
+    PVector v = other.getVertex(i);
+    together.add(v);
   }
-  void addPoint(float x, float y) {
-    Vertex v = new Vertex(x,y);
-    if (this.head == null) {
-      this.head = v;
-      this.tail = v;
+  float dt = INFINITY;
+  PVector toGo = new PVector(0,0);
+  for (int i = 0; i < together.size(); i++) {
+    PVector v = together.get(i);
+    int ni;
+    if (i < poly.getVertexCount()) {
+      ni = i < poly.getVertexCount() - 1 ? i + 1 : 0;
     }
-    v.next = head;
-    tail.next = v;
-    tail = v;
-    numVerts++;
-  }
-  public Iterator<Vertex> iterator() {
-    return new VertexIterator();
-  }
-  private class VertexIterator implements Iterator<Vertex> {
-    private Vertex current;
-    private boolean started;
-    public VertexIterator() {
-      this.current = Polygon.this.head;
-      started = false;
+    else {
+      ni = i < together.size() - 1 ? i + 1 : poly.getVertexCount();
     }
-    public boolean hasNext() {
-      return !(current != null && started  && current == Polygon.this.head);
+    
+    PVector next = together.get(ni);
+    
+    
+    PVector edge = PVector.sub(next, v);
+    PVector normal = new PVector(edge.y,-edge.x).normalize();
+    float myMin = INFINITY, myMax = -INFINITY, theirMin = INFINITY, theirMax = -INFINITY;
+    for (int j = 0; j < poly.getVertexCount(); j++) {
+      PVector u = poly.getVertex(j);
+      float t = normal.dot(u);
+      myMin = t < myMin ? t : myMin;
+      myMax = t > myMax ? t : myMax;
     }
-    public Vertex next() {
-      if (!this.hasNext()) throw new NoSuchElementException();
-      Vertex toReturn = current;
-      current = current.next;
-      started = true;
-      return toReturn;
+    for (int j = 0; j < other.getVertexCount(); j++) {
+      PVector u = other.getVertex(j);
+      float t = normal.dot(u);
+      theirMin = t < theirMin ? t : theirMin;
+      theirMax = t > theirMax ? t : theirMax;
     }
-  }
-  public PVector detectCollision(Polygon other, PVector motion) {
-    ArrayList<Vertex> together = new ArrayList<Vertex>();
-    for (Vertex v : this) together.add(v);
-    for (Vertex v : other) together.add(v);
-    float dt = INFINITY;
-    PVector toGo = new PVector(0,0);
-    for (Vertex v : together) {
-      PVector edge = PVector.sub(v.next, v);
-      PVector normal = new PVector(edge.y,-edge.x).normalize();
-      float myMin = INFINITY, myMax = -INFINITY, theirMin = INFINITY, theirMax = -INFINITY;
-      for (Vertex u : this) {
-        float t = normal.dot(u);
-        myMin = t < myMin ? t : myMin;
-        myMax = t > myMax ? t : myMax;
+    if (myMax < theirMin || theirMax < myMin)
+      return new PVector(0,0);
+    else {
+      //if (normal.dot(motion) > 0) continue;
+      float mag = normal.mag();
+      myMin /= mag;
+      myMax /= mag;
+      theirMin /= mag;
+      theirMax /= mag;
+      normal.div(mag);
+      if (myMax - theirMin > -EPS && myMax - theirMin < dt) {
+        if (normal.dot(motion) < 0) continue;
+        dt = myMax - theirMin;
+        toGo = PVector.mult(normal, -1);
       }
-      for (Vertex u : other) {
-        float t = normal.dot(u);
-        theirMin = t < theirMin ? t : theirMin;
-        theirMax = t > theirMax ? t : theirMax;
-      }
-      if (myMax < theirMin || theirMax < myMin)
-        return new PVector(0,0);
-      else {
-        //if (normal.dot(motion) > 0) continue;
-        float mag = normal.mag();
-        myMin /= mag;
-        myMax /= mag;
-        theirMin /= mag;
-        theirMax /= mag;
-        normal.div(mag);
-        if (myMax - theirMin > -EPS && myMax - theirMin < dt) {
-          if (normal.dot(motion) < 0) continue;
-          dt = myMax - theirMin;
-          toGo = PVector.mult(normal, -1);
-        }
-        if (theirMax - myMin > -EPS && theirMax - myMin < dt) {
-          if (normal.dot(motion) > 0) continue;
-          dt = theirMax - myMin;
-          toGo = normal.copy();
-        }
+      if (theirMax - myMin > -EPS && theirMax - myMin < dt) {
+        if (normal.dot(motion) > 0) continue;
+        dt = theirMax - myMin;
+        toGo = normal.copy();
       }
     }
-    //System.out.println("collision");
-    return toGo.mult(dt + EPS);
   }
+  return toGo.mult(dt + EPS);
 }

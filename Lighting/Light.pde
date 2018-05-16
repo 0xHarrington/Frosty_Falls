@@ -27,9 +27,11 @@ class LightManager {
     for (Solid s:solids) {
       if (s.visible) s.display();
       if (!s.opaque) continue;
-      for  (Vertex v: s.polygon) {
+      for  (int i = 0; i < s.polygon.getVertexCount(); i++) {
+        PVector v = s.polygon.getVertex(i);
         allPoints.add(v);
-        segs.add(new Segment(v.x, v.y, v.next.x, v.next.y, s));
+        PVector next = s.polygon.getVertex((i < s.polygon.getVertexCount() - 1) ? i + 1 : 0);
+        segs.add(new Segment(v.x, v.y, next.x, next.y, s));
       }
       s.lit = false;
     }
