@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg>
+<!-- <rect x="-500" y="0" width="500" height="720"/>
+<rect x="1280" y="0" width="500" height="720"/>
+<rect x="0" y="-500" width="1280" height="500"/> -->
+<rect x="0" y="1280" width="1280" height="500"/>
+
+
+<rect x="100" y="200" width="200" height="200" fill="red"/>
+<polygon points="500,300 550,350, 600,300" fill="green"/>
+</svg>

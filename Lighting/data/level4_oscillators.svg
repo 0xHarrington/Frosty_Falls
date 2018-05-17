@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg>
+<!-- <rect x="-500" y="0" width="500" height="720"/>
+<rect x="1280" y="0" width="500" height="720"/>
+<rect x="0" y="-500" width="1280" height="500"/> -->
+<!-- <rect x="0" y="640" width="1280" height="500" fill="rgb(69,179,224)"/> -->
+
+<rect x="740" y="300" width="200" height="20" fill="rgb(69,179,224)"/>
+<rect x="340" y="350" width="200" height="20" fill="rgb(69,179,224)"/>
+<!-- <rect x="688" y="120" width="592" height="20" fill="rgb(69,179,224)"/>
+<rect x="0" y="630" width="624" height="20" fill="rgb(69,179,224)"/>
+<rect x="656" y="630" width="624" height="20" fill="rgb(69,179,224)"/> -->
+</svg>
