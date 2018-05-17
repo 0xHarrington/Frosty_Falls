@@ -124,10 +124,10 @@ void keyPressed(){
     else if (finished) {
       finished = false;
       complete = false;
-      whichLevel = 0;
-      ELAPSED_TIME = 0;
       clearLevel();
+      whichLevel = 0;
       loadLevel(whichLevel);
+      ELAPSED_TIME = 0;
     }
   }
   
