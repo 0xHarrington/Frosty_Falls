@@ -50,22 +50,12 @@ class Player extends Solid {
     super.addPoint(p.x,p.y);
   }
   
-  boolean checkFinish() {
-    float num = 2;
-    float denom = 3;
-    float r = num * FIN_RAD / denom;
-    return (minx <= endx + r && maxx >= endx - r && 
-            miny <= endy + r && maxy >= endy - r);
-  }
- 
   void move() {
     if (lit) size -= .5;
     else if (size < 100) size += 1;
     
     if (size < 5) {die();return;}
-    
-    if (checkFinish()) complete = true;
-    
+      
     //polygon.clear();
     polygon = createShape();
     polygon.beginShape();
@@ -108,6 +98,7 @@ class Player extends Solid {
       if (other == player) continue;
       PVector impulse = detectCollision(convexHull(span), other.polygon, velocity);
       if (impulse.magSq() <= EPS) continue;
+      if (other == finish) {complete = true; continue;}
       for (int i = 0; i < player.polygon.getVertexCount(); i++) {
         PVector v = player.polygon.getVertex(i);
         v.add(impulse);
@@ -118,18 +109,10 @@ class Player extends Solid {
         standing = true;
       PVector parallel = new PVector(impulse.y, -impulse.x);
       velocity = parallel.mult(velocity.dot(parallel));
-    }
-    
-    for (int i = 0; i < polygon.getVertexCount(); i++) {
-      PVector v = polygon.getVertex(i);
-      minx = min(v.x, minx);
-      maxx = max(v.x, maxx);
-      miny = min(v.y, miny);
-      maxy = max(v.y, maxy);
-    }
-    
+    }   
   }
-void display() {
+  
+  void display() {
     float radius = size / 6;
     rotation += direction;
     
@@ -190,8 +173,9 @@ void display() {
     popMatrix();
     noStroke();
     blendMode(ADD);
-    }
+   }
 }
+
 void polygon(float x, float y, float radius, int npoints) {
   float angle = TWO_PI / npoints;
   beginShape();

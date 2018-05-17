@@ -73,6 +73,33 @@ class Solid {
   void move() {}
 }
 
+class Finish extends Solid {
+  float x, y;
+  
+  Finish(float x, float y) {
+    PShape s = createShape();
+    float angle = TWO_PI / 20;
+    float r = 40;
+    s.beginShape();
+    for (float a = 0; a < TWO_PI; a += angle) {
+      float sx = x + cos(a) * r;
+      float sy = y + sin(a) * r;
+      s.vertex(sx, sy);
+    }
+    s.endShape();
+    
+    super.polygon = s;
+    super.opaque = false;
+    super.myLitColor = color(127,231,6);
+    super.myUnlitColor = color(72,167,1);
+    this.x = x;
+    this.y = y;
+  }
+  
+  void add() {
+    solids.add(this);
+  }
+}
 
 //class Oscillator extends Solid {
 //  PVector direction;

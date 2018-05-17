@@ -1,4 +1,5 @@
 import java.util.*;
+import java.text.DecimalFormat;
 ArrayList<Solid> solids;
 ArrayList<Light> lightsa;
 boolean debug = false;
@@ -9,12 +10,17 @@ Solid boundary;
 PImage lightImg;
 PImage playerImg;
 Player player;
+Finish finish;
 
 final float INFINITY = 999999;
 final float EPS = .0001;
 final float LIGHT_SPEED = 2.5;
 final float FIN_RAD = 30, LIGHT_RAD = 5;
 final int NUM_DOTS = 45;
+final DecimalFormat df = new DecimalFormat("0.00");
+
+double savedTime = 0;
+double ELAPSED_TIME = 0;
 
 /* CONTROL FLOW */
 void setup() { 
@@ -26,7 +32,8 @@ void setup() {
   lightManager = new LightManager();
   
   lightImg = loadImage("http://i.imgur.com/DADrPTA.png");
-//  playerImg = loadImage("olaf.png");
+
+  savedTime = millis();
 
   /* Load Level Design */
   clearLevel();
@@ -58,36 +65,45 @@ void draw() {
     textAlign(CENTER);
     fill(50);
     text("Thank you for playing!",width / 2, height/2 - 20);
+    text("Final Time: " + df.format(ELAPSED_TIME), width / 2, height/2 + 15);     
     textSize(15);
-    text("Press ESCAPE to quit",width / 2, height/2 + 10); 
+    text("Press ESCAPE to quit", width / 2, height / 2 + 50);
+    text("Press ENTER to restart", width / 2, height / 2 + 65);
   }
   else if (complete) {
     fill(75,181,67);
     rect(0,0,width, height);
-    textSize(20);
+    textSize(25);
     textAlign(CENTER);
     fill(50);
     text("Level Complete",width / 2, height/2);
-    text("Press ENTER to continue",width / 2, height/2 + 20);
+    text("Press ENTER to continue",width / 2, height/2 + 30);
+
+    textSize(20);
+    text("Time Passed: " + df.format(ELAPSED_TIME), width / 7.5, height / 10);
   }
-  else for (Solid solid : solids) solid.move();
   
-  // This "passedBall" solution total workaround, still breaks occasionally
-  int passedBall = 0;
-  for (int i = 0; i < balls.size(); i++) {
-    Ball bi = balls.get(i);
-    bi.display();
-    if (bi.isFinish) passedBall = 1;
-    else { 
+  else {
+    // Update every solids' position
+    for (Solid solid : solids) solid.move();
+    
+    for (int i = 0; i < balls.size(); i++) {
+      Ball bi = balls.get(i);
+      bi.display();
       bi.move();
-      lights.get(i - passedBall).move(bi.x, bi.y);
+      lights.get(i).move(bi.x, bi.y);       
     }
+    
+    /* Timer updating */
+    ELAPSED_TIME += (millis() - savedTime) / 100000;
+      
+    // Update lights
+    lightManager.castLight();
   }
   
-  lightManager.castLight();
+  //textSize(10);
+  //text("" + ELAPSED_TIME, 18*width/20, height / 10);
   
-  text(frameRate,40,40);
-  text(String.valueOf(complete), 40, 50);
 }
 
 void mousePressed() {
@@ -95,12 +111,23 @@ void mousePressed() {
 }
 
 void keyPressed(){
-  if (key == '\n' && complete) {
-    if (whichLevel >= NUM_LEVELS) finished = true;
-    else {
+  if (key == '\n') {
+    if (complete) {
+      if (whichLevel >= NUM_LEVELS) {finished = true; complete=false;}
+      else {
+        complete = false;
+        clearLevel();
+        loadLevel(++whichLevel);
+      }
+      savedTime = millis();
+    }
+    else if (finished) {
+      finished = false;
       complete = false;
+      whichLevel = 0;
+      ELAPSED_TIME = 0;
       clearLevel();
-      loadLevel(++whichLevel);
+      loadLevel(whichLevel);
     }
   }
   
@@ -109,7 +136,6 @@ void keyPressed(){
   if (key == 'r' && (!complete || !finished)) {
     clearLevel();
     loadLevel(whichLevel); 
-    System.out.println("restarting");
   }
   
   player.keyPressed();

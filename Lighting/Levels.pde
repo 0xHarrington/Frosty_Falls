@@ -1,7 +1,6 @@
 final int NUM_LEVELS = 8;
-int whichLevel = 1;
+int whichLevel = 0;
 float floorthicc = 20;
-float endx, endy;
 
 private void addBlock(float tlx, float tly, float brx, float bry) {
   Solid newBlock = new Solid();
@@ -20,17 +19,16 @@ public void addLight(float x, float y) {
 }
 
 private void addTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {
-  Solid newTriangle = new Solid();
-  newTriangle.addPoint(x1,y1);
+  Solid newTriangle = new Solid(); //<>//
+  newTriangle.addPoint(x1,y1); //<>//
   newTriangle.addPoint(x2,y2);
   newTriangle.addPoint(x3,y3);
   solids.add(newTriangle);
 }
 
 private void addEnd(float x, float y) {
-  balls.add(new Ball(x, y, color(119,255,119,240), FIN_RAD, true));
-  endx = x;
-  endy = y;
+  finish = new Finish(x, y);
+  finish.add();
 }
 
 private void addDot(float x, float y) {
@@ -39,8 +37,6 @@ private void addDot(float x, float y) {
 
 public void clearLevel() {
   move = false;
-  endx = INFINITY;
-  endy = INFINITY;
   solids.clear();
   balls.clear();
   lights.clear();
@@ -48,7 +44,7 @@ public void clearLevel() {
 }
 
 public void loadLevel(int l) {
-  float wallthicc = 2*width;
+  float wallthicc = 5 * width;
   
   /* FIXED DESIGN */
   // Walls
@@ -70,7 +66,7 @@ public void loadLevel(int l) {
       spawn(.5, 20, height-floorthicc);
       break;
     
-    case 5:
+    case 7:
       move = true;
     case 2:
       addBlock(0, height-floorthicc, width, height);
@@ -80,7 +76,7 @@ public void loadLevel(int l) {
       addBlock(8*xgrid, 1*ygrid, 12*xgrid, 2*ygrid);
       addLight(8*xgrid, .5*ygrid);
       addLight(12*xgrid, .5*ygrid);
-      addEnd(1.5*xgrid, 2.5);
+      addEnd(1.5*xgrid, 2.5*ygrid);
       spawn(.5, 20, height-floorthicc);
       break;
       
@@ -96,23 +92,24 @@ public void loadLevel(int l) {
       break;
       
     case 4:
-      addBlock(0, 2.5*ygrid, 17.25*xgrid, 3*ygrid);
-      addBlock(2.75*xgrid, 4.5*ygrid, width, 5*ygrid);
-      addBlock(0, 6.5*ygrid, 16*xgrid, 7*ygrid);
-      addBlock(4*xgrid, 8.5*ygrid, width, 9*ygrid);
-      addBlock(0, 10.5*ygrid, 14.75*xgrid, 11*ygrid);
-      addBlock(5.75*xgrid, 12.5*ygrid, width, 13*ygrid);
-      addBlock(0, 14.5*ygrid, 13.5*xgrid, 15*ygrid);
-      
+      addLight(10*xgrid, 10*ygrid); 
       addLight(10*xgrid, 10*ygrid); 
       addLight(10*xgrid, 10*ygrid); 
       move = true;
+    case 0:
+      addBlock(0, 2.5*ygrid, 17.5*xgrid, 3*ygrid);
+      addBlock(3.5*xgrid, 4.5*ygrid, width, 5*ygrid);
+      addBlock(0, 6.5*ygrid, 15.5*xgrid, 7*ygrid);
+      addBlock(5.5*xgrid, 8.5*ygrid, width, 9*ygrid);
+      addBlock(0, 10.5*ygrid, 13.5*xgrid, 11*ygrid);
+      addBlock(7.5*xgrid, 12.5*ygrid, width, 13*ygrid);
+      addBlock(0, 14.5*ygrid, 13.5*xgrid, 15*ygrid);
       
       addEnd(17*xgrid, 18*ygrid);
       spawn(.3, EPS, 2.5*ygrid-EPS);
       break;
       
-    case 6:
+    case 5:
       addBlock(0, height-floorthicc/2, 3*xgrid, height);
       addBlock(5*xgrid, height-floorthicc/2, 7*xgrid, height);
       addBlock(9*xgrid, height-floorthicc/2, 11*xgrid, height);
@@ -133,7 +130,7 @@ public void loadLevel(int l) {
       spawn(.65, 19*xgrid, height-ygrid);
       break;
       
-    case 7:
+    case 6:
       float bh = 15*ygrid;
       addTriangle(0, bh, 1*xgrid, bh-ygrid, 2*xgrid, bh);
       addTriangle(5*xgrid, bh, 6*xgrid, bh-ygrid, 7*xgrid, bh);
@@ -142,13 +139,13 @@ public void loadLevel(int l) {
       addTriangle(18*xgrid, bh, 19*xgrid, bh-ygrid, width, bh);      
       
       // Random dots for lighting effects
-      for (int i = 0; i < NUM_DOTS; i++) {
+      for (int i = 0; i < 2.25 * NUM_DOTS; i++) {
         double rx = Math.random() * width;  
         double ry = height - (Math.random() * (height-bh));  
         addDot((float) rx, (float) ry);
       }      
       
-      addLight(10*xgrid, 10*ygrid);
+      addLight(10*xgrid, 18*ygrid);
       move = true;
       
       addEnd(xgrid, 7.5*ygrid);

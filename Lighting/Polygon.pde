@@ -58,14 +58,13 @@ class Point2D extends PVector implements Comparable<Point2D> {
         // Note: ccw() recomputes dx1, dy1, dx2, and dy2
     }
   }
-  
 }
 public int ccw(Point2D a, Point2D b, Point2D c) {
     double area2 = (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
     if      (area2 < 0) return CLOCKWISE;
     else if (area2 > 0) return COUNTER_CLOCKWISE;
     else                return  COLLINEAR;
-  }
+}
 
 PShape convexHull(ArrayList<PVector> points) {
   Stack<Point2D> hull = new Stack<Point2D>();
@@ -134,7 +133,6 @@ Intersection getIntersection(Ray ray, Segment segment) {
 
   return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
 }
-
 
 public PVector detectCollision(PShape poly, PShape other, PVector motion) {
   ArrayList<PVector> together = new ArrayList<PVector>();
