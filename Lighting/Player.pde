@@ -28,8 +28,6 @@ class Player extends Solid {
   boolean prevLit = false;
   
   Player(float h, float x, float y) {
-    System.out.println(x);
-    System.out.println(x - h/6);
     float w = h / 3;
     PShape hitbox = createShape();
     hitbox.beginShape();
@@ -150,6 +148,8 @@ class Player extends Solid {
       if (impulse.magSq() <= EPS) 
         continue;
       if (other.isEnd) {
+        
+        ELAPSED_TIME += (millis() - savedTime) / 100000;
         state = WIN;
         return;
       }

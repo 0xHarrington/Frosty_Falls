@@ -146,7 +146,6 @@ Intersection getIntersection(Ray ray, Segment segment) {
   return new Intersection(ray.pos.x + ray.dir.x * T1, ray.pos.y + ray.dir.y * T1, T1, segment);
 }
 
-
 public PVector detectCollision(PShape poly, PShape other, PVector motion) {
   ArrayList<PVector> together = new ArrayList<PVector>();
   for (int i = 0; i < poly.getVertexCount(); i++) {

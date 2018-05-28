@@ -1,4 +1,5 @@
 import java.util.*;
+import java.text.DecimalFormat;
 ArrayList<Solid> solids;
 ArrayList<Light> lightsa;
 boolean debug = false;
@@ -17,6 +18,9 @@ final int PLAYING = 0, DEAD = 1, WIN = 2, END = 3;
 
 
 int state;
+final DecimalFormat df = new DecimalFormat("0.00");
+double savedTime = 0;
+double ELAPSED_TIME = 0;
 
 /* CONTROL FLOW */
 void setup() { 
@@ -28,6 +32,8 @@ void setup() {
   lightManager = new LightManager();
   
   lightImg = loadImage("http://i.imgur.com/DADrPTA.png");
+
+  savedTime = millis();
 
   /* Load Level Design */
   clearLevel();
@@ -57,20 +63,17 @@ void draw() {
   
   
   // This "passedBall" solution total workaround, still breaks occasionally
-  int passedBall = 0;
   for (int i = 0; i < balls.size(); i++) {
     Ball bi = balls.get(i);
     bi.display();
-    if (bi.isFinish) passedBall = 1;
-    else { 
-      bi.move();
-      lights.get(i - passedBall).move(bi.x, bi.y);
-    }
+    //if (bi.isFinish) passedBall = 1;
+    bi.move();
+    lights.get(i).move(bi.x, bi.y);
   }
   
   lightManager.castLight();
   
-  text(frameRate,40,40);
+  //text(frameRate,40,40);
 }
 
 void deathScreen() {
@@ -102,6 +105,7 @@ void winScreen() {
   fill(50);
   text("Level Complete",width / 2, height/2);
   text("Press ENTER to continue",width / 2, height/2 + 20);
+  text("Time: " + df.format(ELAPSED_TIME), 100,100);
 }
 
 void mousePressed() {
@@ -117,6 +121,7 @@ void keyPressed(){
       clearLevel();
       loadLevel(++whichLevel);
     }
+    savedTime = millis();
   }
   
   if (key == 'm') move = !move;
@@ -124,7 +129,6 @@ void keyPressed(){
   if (key == 'r' && (state != WIN || state != END)) {
     clearLevel();
     loadLevel(whichLevel); 
-    System.out.println("restarting");
   }
   
   player.keyPressed();

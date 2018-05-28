@@ -7,7 +7,7 @@
 <rect x="0" y="-500" width="1280" height="500"/>
 <rect x="0" y="640" width="1280" height="500" fill="rgb(69,179,224)"/>
 
-<rect x="100" y="500" width="300" height="40" fill="rgb(69,179,224)"/>
+<rect x="100" y="500" width="300" height="140" fill="rgb(69,179,224)"/>
 <rect x="930" y="420" width="350" height="40" fill="rgb(69,179,224)"/>
 <rect x="20" y="240" width="280" height="40" fill="rgb(69,179,224)"/>
 <rect x="512" y="36" width="256" height="2" fill="rgb(69,179,224)"/>

@@ -9,6 +9,5 @@
 
 <rect x="0" y="660" width="240" height="500" fill="rgb(69,179,224)"/>
 <rect x="1040" y="660" width="240" height="500" fill="rgb(69,179,224)"/>
-<!-- <rect x="20" y="240" width="280" height="40" fill="rgb(69,179,224)"/> -->
-<!-- <rect x="512" y="36" width="256" height="2" fill="rgb(69,179,224)"/> -->
+<polygon points="470,340 420,280 370,340" fill="rgb(69,179,224)"/>
 </svg>

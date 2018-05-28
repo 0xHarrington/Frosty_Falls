@@ -43,7 +43,7 @@ private void addEnd(float x, float y) {
   }
   end.endShape(CLOSE);
   
-  end.setFill(color(119,255,119));
+  end.setFill(color(127,231,6));
   
   solids.add(new Solid(end, true));
   
@@ -80,7 +80,7 @@ public void loadLevel(int l) {
   float ygrid = height / 20;
   switch (l) {
     case 1: 
-      addLight(425, 5);
+      addLight(275, 5);
       addEnd(1000, 500);
       scene = loadShape("level1.svg");
       for (int i = 0; i < scene.getChildCount(); i++) {
@@ -100,7 +100,7 @@ public void loadLevel(int l) {
       }
       addLight(512, 18);
       addLight(768, 18);
-      addEnd(96, 2.5);
+      addEnd(125, 2.5);
       spawn(150, 20, 620);
       break;
       
@@ -139,7 +139,6 @@ public void loadLevel(int l) {
       for (int i = 0; i < scene.getChildCount(); i++) {
         PShape shape = scene.getChild(i);
         solids.add(new Oscillator(shape, new PVector((i % 2 == 0) ? -4 : 4,0), 100));
-        System.out.println("oscillator");
       }
       
       
@@ -212,14 +211,20 @@ public void loadLevel(int l) {
         PShape shape = scene.getChild(i);
         solids.add(new Solid(shape));
       }
-
-      Solid shape2 = new Solid();
-      shape2.addPoint(470, 340);
-      shape2.addPoint(420, 280);
-      shape2.addPoint(370, 340);
-      solids.add(shape2);
       
-      spawn(150, 20, height - floorthicc);
+      scene = loadShape("level8_oscillators.svg");
+      for (int i = 0; i < scene.getChildCount(); i++) {
+        PShape shape = scene.getChild(i);
+        solids.add(new Oscillator(shape, new PVector((i % 2 == 0) ? -4 : 4,0), 100));
+      }
+
+      //Solid shape2 = new Solid();
+      //shape2.addPoint(470, 340);
+      //shape2.addPoint(420, 280);
+      //shape2.addPoint(370, 340);
+      //solids.add(shape2);
+      
+      spawn(150, 20, height - 500);
       break;
   }
 }
